@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,6 +19,13 @@ interface ProjectFeature {
   quantity: number;
   custom_price: number | null;
   notes: string | null;
+}
+
+interface ParsedFeature {
+  name: string;
+  price: number;
+  category: string;
+  description?: string;
 }
 
 interface Project {
@@ -96,6 +102,40 @@ const MyProjectsSection: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const parseDescriptionFeatures = (description: string | null): ParsedFeature[] => {
+    if (!description) return [];
+    
+    const features: ParsedFeature[] = [];
+    const featurePattern = /•\s*([^:]+):\s*ETB\s*([\d,]+)/g;
+    let match;
+    
+    while ((match = featurePattern.exec(description)) !== null) {
+      const name = match[1].trim();
+      const price = parseInt(match[2].replace(/,/g, ''));
+      
+      if (name && !isNaN(price)) {
+        // Determine category based on feature name or price
+        let category = 'custom';
+        if (name.toLowerCase().includes('starter') || price < 5000) {
+          category = 'starter';
+        } else if (name.toLowerCase().includes('business') || (price >= 5000 && price < 15000)) {
+          category = 'business';
+        } else if (name.toLowerCase().includes('enterprise') || price >= 15000) {
+          category = 'enterprise';
+        }
+        
+        features.push({
+          name,
+          price,
+          category,
+          description: `Feature parsed from project description`
+        });
+      }
+    }
+    
+    return features;
   };
 
   const getStatusProgress = (status: string) => {
@@ -268,6 +308,9 @@ const MyProjectsSection: React.FC = () => {
         <div className="space-y-6">
           {projects.map((project) => {
             const clientInfo = extractClientInfo(project.description);
+            const hasProjectFeatures = project.project_features && project.project_features.length > 0;
+            const parsedFeatures = !hasProjectFeatures ? parseDescriptionFeatures(project.description) : [];
+            const showParsedFeatures = parsedFeatures.length > 0;
             
             return (
               <div key={project.id} className="border rounded-lg p-6 space-y-4 bg-white shadow-sm">
@@ -289,47 +332,99 @@ const MyProjectsSection: React.FC = () => {
                   </div>
                 </div>
 
-                {project.project_features && project.project_features.length > 0 && (
+                {/* Project Features - Saved or Parsed */}
+                {(hasProjectFeatures || showParsedFeatures) && (
                   <div className="text-sm text-gray-700 bg-blue-50 p-4 rounded-lg">
                     <h4 className="font-medium text-blue-900 mb-3 flex items-center">
                       <FileText className="h-4 w-4 mr-2" />
                       Ordered Features & Services:
+                      {showParsedFeatures && (
+                        <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                          Parsed from description
+                        </span>
+                      )}
                     </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {project.project_features.map((projectFeature) => (
-                        <div key={projectFeature.id} className="flex items-start bg-white p-3 rounded-lg border">
-                          <CheckCircle2 className="h-4 w-4 text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
-                          <div className="flex-1">
-                            <span className="font-medium text-blue-800">{projectFeature.feature.name}</span>
-                            {projectFeature.feature.description && (
-                              <p className="text-xs text-blue-600 mt-1">{projectFeature.feature.description}</p>
-                            )}
-                            <div className="flex items-center justify-between mt-2">
-                              <span className={`text-xs px-2 py-1 rounded-full bg-gray-100 ${getCategoryColor(projectFeature.feature.category)}`}>
-                                {projectFeature.feature.category}
-                              </span>
-                              <span className="text-sm font-semibold text-blue-800">
-                                {formatCurrency(projectFeature.custom_price || projectFeature.feature.price, 'ETB')}
-                              </span>
+                    
+                    {hasProjectFeatures ? (
+                      // Display saved project features
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {project.project_features.map((projectFeature) => (
+                          <div key={projectFeature.id} className="flex items-start bg-white p-3 rounded-lg border">
+                            <CheckCircle2 className="h-4 w-4 text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
+                            <div className="flex-1">
+                              <span className="font-medium text-blue-800">{projectFeature.feature.name}</span>
+                              {projectFeature.feature.description && (
+                                <p className="text-xs text-blue-600 mt-1">{projectFeature.feature.description}</p>
+                              )}
+                              <div className="flex items-center justify-between mt-2">
+                                <span className={`text-xs px-2 py-1 rounded-full bg-gray-100 ${getCategoryColor(projectFeature.feature.category)}`}>
+                                  {projectFeature.feature.category}
+                                </span>
+                                <span className="text-sm font-semibold text-blue-800">
+                                  {formatCurrency(projectFeature.custom_price || projectFeature.feature.price, 'ETB')}
+                                </span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                    {project.project_features.length > 0 && (
+                        ))}
+                      </div>
+                    ) : (
+                      // Display parsed features from description
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {parsedFeatures.map((feature, index) => (
+                          <div key={index} className="flex items-start bg-white p-3 rounded-lg border border-yellow-200">
+                            <CheckCircle2 className="h-4 w-4 text-yellow-600 mr-2 mt-0.5 flex-shrink-0" />
+                            <div className="flex-1">
+                              <span className="font-medium text-yellow-800">{feature.name}</span>
+                              {feature.description && (
+                                <p className="text-xs text-yellow-600 mt-1">{feature.description}</p>
+                              )}
+                              <div className="flex items-center justify-between mt-2">
+                                <span className={`text-xs px-2 py-1 rounded-full bg-yellow-100 ${getCategoryColor(feature.category)}`}>
+                                  {feature.category}
+                                </span>
+                                <span className="text-sm font-semibold text-yellow-800">
+                                  {formatCurrency(feature.price, 'ETB')}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {/* Features Total */}
+                    {(hasProjectFeatures || showParsedFeatures) && (
                       <div className="mt-3 pt-3 border-t border-blue-200">
                         <div className="flex justify-between items-center">
                           <span className="font-medium text-blue-900">Features Total:</span>
                           <span className="font-bold text-blue-900">
-                            {formatCurrency(
-                              project.project_features.reduce((total, pf) => 
-                                total + (pf.custom_price || pf.feature.price), 0
-                              ), 'ETB'
+                            {hasProjectFeatures ? (
+                              formatCurrency(
+                                project.project_features.reduce((total, pf) => 
+                                  total + (pf.custom_price || pf.feature.price), 0
+                                ), 'ETB'
+                              )
+                            ) : (
+                              formatCurrency(
+                                parsedFeatures.reduce((total, f) => total + f.price, 0), 'ETB'
+                              )
                             )}
                           </span>
                         </div>
                       </div>
                     )}
+                  </div>
+                )}
+
+                {/* No Features Message */}
+                {!hasProjectFeatures && !showParsedFeatures && (
+                  <div className="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg">
+                    <h4 className="font-medium text-gray-700 mb-2 flex items-center">
+                      <FileText className="h-4 w-4 mr-2" />
+                      No specific features recorded
+                    </h4>
+                    <p>This project may have been created before the feature system was implemented.</p>
                   </div>
                 )}
 
