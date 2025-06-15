@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LogOut, Settings, Users, CreditCard, MessageSquare, ArrowLeft } from 'lucide-react';
+import UserManagement from '@/components/admin/UserManagement';
 
 const AdminDashboard = () => {
   const { user, userRole, signOut } = useAuth();
@@ -181,17 +182,7 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="users" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>User Management</CardTitle>
-                <CardDescription>
-                  Manage user accounts and roles
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">User management functionality coming soon...</p>
-              </CardContent>
-            </Card>
+            <UserManagement />
           </TabsContent>
 
           <TabsContent value="messages" className="space-y-4">
