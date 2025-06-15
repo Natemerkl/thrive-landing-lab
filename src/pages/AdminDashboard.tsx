@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, Check, X, ArrowLeft, Users, CreditCard, FileText } from 'lucide-react';
+import { Eye, Check, X, ArrowLeft, Users, CreditCard, FileText, MessageSquare, Mail } from 'lucide-react';
 
 interface Payment {
   id: string;
@@ -37,25 +36,60 @@ interface BillingHistory {
   created_at: string;
 }
 
+interface ContactInquiry {
+  id: string;
+  name: string;
+  email: string;
+  message: string;
+  phone: string | null;
+  project_type: string | null;
+  budget_range: string | null;
+  status: string;
+  created_at: string;
+}
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [payments, setPayments] = useState<Payment[]>([]);
   const [billingHistory, setBillingHistory] = useState<BillingHistory[]>([]);
+  const [contactInquiries, setContactInquiries] = useState<ContactInquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null);
   const [stats, setStats] = useState({
     totalPayments: 0,
     pendingPayments: 0,
     verifiedPayments: 0,
-    totalRevenue: 0
+    totalRevenue: 0,
+    totalInquiries: 0,
+    newInquiries: 0
   });
 
   useEffect(() => {
     fetchPayments();
     fetchBillingHistory();
+    fetchContactInquiries();
     calculateStats();
   }, []);
+
+  const fetchContactInquiries = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('contact_inquiries')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setContactInquiries(data || []);
+    } catch (error: any) {
+      console.error('Error fetching contact inquiries:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch contact inquiries",
+        variant: "destructive",
+      });
+    }
+  };
 
   const fetchPayments = async () => {
     try {
@@ -98,6 +132,10 @@ const AdminDashboard = () => {
         .from('payments')
         .select('amount, status');
 
+      const { data: inquiriesData } = await supabase
+        .from('contact_inquiries')
+        .select('status');
+
       if (paymentsData) {
         const totalPayments = paymentsData.length;
         const pendingPayments = paymentsData.filter(p => p.status === 'pending').length;
@@ -106,15 +144,46 @@ const AdminDashboard = () => {
           .filter(p => p.status === 'verified')
           .reduce((sum, p) => sum + Number(p.amount), 0);
 
+        const totalInquiries = inquiriesData?.length || 0;
+        const newInquiries = inquiriesData?.filter(i => i.status === 'new').length || 0;
+
         setStats({
           totalPayments,
           pendingPayments,
           verifiedPayments,
-          totalRevenue
+          totalRevenue,
+          totalInquiries,
+          newInquiries
         });
       }
     } catch (error) {
       console.error('Error calculating stats:', error);
+    }
+  };
+
+  const updateInquiryStatus = async (inquiryId: string, status: string) => {
+    try {
+      const { error } = await supabase
+        .from('contact_inquiries')
+        .update({ status, updated_at: new Date().toISOString() })
+        .eq('id', inquiryId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Inquiry marked as ${status}`,
+      });
+
+      fetchContactInquiries();
+      calculateStats();
+    } catch (error: any) {
+      console.error('Error updating inquiry status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update inquiry status",
+        variant: "destructive",
+      });
     }
   };
 
@@ -127,7 +196,6 @@ const AdminDashboard = () => {
 
       if (error) throw error;
 
-      // Update billing history status
       await supabase
         .from('billing_history')
         .update({ status: status === 'verified' ? 'paid' : 'failed' })
@@ -176,6 +244,11 @@ const AdminDashboard = () => {
       case 'rejected': return 'bg-red-100 text-red-800';
       case 'paid': return 'bg-green-100 text-green-800';
       case 'failed': return 'bg-red-100 text-red-800';
+      case 'new': return 'bg-blue-100 text-blue-800';
+      case 'contacted': return 'bg-purple-100 text-purple-800';
+      case 'in_progress': return 'bg-orange-100 text-orange-800';
+      case 'completed': return 'bg-green-100 text-green-800';
+      case 'closed': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -202,12 +275,12 @@ const AdminDashboard = () => {
             Back to Home
           </Button>
           <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Manage payments and user accounts</p>
+          <p className="text-muted-foreground">Manage payments, users, and contact inquiries</p>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Payments</CardTitle>
@@ -249,14 +322,161 @@ const AdminDashboard = () => {
             </div>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Inquiries</CardTitle>
+            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-indigo-600">{stats.totalInquiries}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">New Messages</CardTitle>
+            <Mail className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-600">{stats.newInquiries}</div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Main Content */}
-      <Tabs defaultValue="payments" className="space-y-6">
+      <Tabs defaultValue="inquiries" className="space-y-6">
         <TabsList>
+          <TabsTrigger value="inquiries">Contact Messages</TabsTrigger>
           <TabsTrigger value="payments">Payment Management</TabsTrigger>
           <TabsTrigger value="billing">Billing History</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="inquiries" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Contact Inquiries</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Review and manage customer contact messages
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead>Project Type</TableHead>
+                      <TableHead>Budget</TableHead>
+                      <TableHead>Message</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {contactInquiries.map((inquiry) => (
+                      <TableRow key={inquiry.id}>
+                        <TableCell>{formatDate(inquiry.created_at)}</TableCell>
+                        <TableCell className="font-medium">{inquiry.name}</TableCell>
+                        <TableCell>{inquiry.email}</TableCell>
+                        <TableCell>{inquiry.phone || 'N/A'}</TableCell>
+                        <TableCell className="capitalize">{inquiry.project_type || 'N/A'}</TableCell>
+                        <TableCell>{inquiry.budget_range || 'N/A'}</TableCell>
+                        <TableCell className="max-w-xs">
+                          <div className="truncate" title={inquiry.message}>
+                            {inquiry.message.length > 50 
+                              ? `${inquiry.message.substring(0, 50)}...` 
+                              : inquiry.message}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={getStatusColor(inquiry.status)}>
+                            {inquiry.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex space-x-2">
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button variant="outline" size="sm">
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-2xl">
+                                <DialogHeader>
+                                  <DialogTitle>Contact Inquiry Details</DialogTitle>
+                                </DialogHeader>
+                                <div className="space-y-4">
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                      <strong>Name:</strong> {inquiry.name}
+                                    </div>
+                                    <div>
+                                      <strong>Email:</strong> {inquiry.email}
+                                    </div>
+                                    <div>
+                                      <strong>Phone:</strong> {inquiry.phone || 'N/A'}
+                                    </div>
+                                    <div>
+                                      <strong>Project Type:</strong> {inquiry.project_type || 'N/A'}
+                                    </div>
+                                    <div>
+                                      <strong>Budget Range:</strong> {inquiry.budget_range || 'N/A'}
+                                    </div>
+                                    <div>
+                                      <strong>Date:</strong> {formatDate(inquiry.created_at)}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <strong>Message:</strong>
+                                    <p className="mt-2 p-3 bg-gray-50 rounded">{inquiry.message}</p>
+                                  </div>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                            
+                            {inquiry.status === 'new' && (
+                              <Button
+                                size="sm"
+                                onClick={() => updateInquiryStatus(inquiry.id, 'contacted')}
+                                variant="outline"
+                              >
+                                Mark Contacted
+                              </Button>
+                            )}
+                            
+                            {inquiry.status === 'contacted' && (
+                              <Button
+                                size="sm"
+                                onClick={() => updateInquiryStatus(inquiry.id, 'in_progress')}
+                                variant="outline"
+                              >
+                                In Progress
+                              </Button>
+                            )}
+                            
+                            {inquiry.status === 'in_progress' && (
+                              <Button
+                                size="sm"
+                                onClick={() => updateInquiryStatus(inquiry.id, 'completed')}
+                                className="bg-green-600 hover:bg-green-700"
+                              >
+                                Complete
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="payments" className="space-y-6">
           <Card>
