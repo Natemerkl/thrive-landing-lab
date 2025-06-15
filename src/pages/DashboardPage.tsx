@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { LogOut, Settings, Users, CreditCard, Globe, FileText } from 'lucide-react';
+import { LogOut, Settings, Users, CreditCard, Globe, FileText, CheckCircle } from 'lucide-react';
 
 const DashboardPage = () => {
   const { user, userRole, signOut } = useAuth();
@@ -157,6 +157,27 @@ const DashboardPage = () => {
                 className="w-full bg-gray-600 hover:bg-gray-700"
               >
                 Go to Payment
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Payment Verification - For all users */}
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow border-emerald-200 bg-emerald-50">
+            <CardHeader>
+              <CardTitle className="flex items-center text-emerald-900">
+                <CheckCircle className="mr-2 h-5 w-5" />
+                Payment Verification
+              </CardTitle>
+              <CardDescription className="text-emerald-700">
+                Track payment status, history, and contact support
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={() => navigate('/payment-verification')} 
+                className="w-full bg-emerald-600 hover:bg-emerald-700"
+              >
+                Check Payment Status
               </Button>
             </CardContent>
           </Card>
