@@ -13,7 +13,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Copy, Upload, CheckCircle2, AlertTriangle, BanknoteIcon, ArrowLeft } from 'lucide-react';
+import { Copy, Upload, CheckCircle2, AlertTriangle, BanknoteIcon, ArrowLeft, Code } from 'lucide-react';
 
 // Define a basic schema for the payment form
 const paymentFormSchema = z.object({
@@ -239,289 +239,332 @@ const PaymentPage: React.FC = () => {
 
   if (!selectedPlan) {
     return (
-      <div className="container mx-auto py-12 px-4 text-center">
-        Loading plan information...
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-slate-600">Loading plan information...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-4xl">
-      <div className="mb-6">
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate(-1)}
-          className="flex items-center text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Project Selection
-        </Button>
-      </div>
-
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold tracking-tight mb-2">
-          Complete Your {selectedPlan?.name || 'Custom Project'} Purchase
-        </h1>
-        <p className="text-muted-foreground">
-          One-time payment - {formatCurrency(getAmount())}
-        </p>
-      </div>
-
-      {paymentSuccessful ? (
-        <Card>
-          <CardHeader className="text-center">
-            <CheckCircle2 className="mx-auto h-12 w-12 text-green-500 mb-4" />
-            <CardTitle>Payment Submitted Successfully!</CardTitle>
-            <CardDescription>
-              Your payment is now under review. We'll activate your project once verified.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Alert>
-              <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>Payment Confirmation</AlertTitle>
-              <AlertDescription>
-                Your payment has been submitted and is pending verification. You'll be notified once it's processed.
-              </AlertDescription>
-            </Alert>
-            
-            <div className="mt-6 space-y-4">
-              <div className="border rounded-lg p-4">
-                <h3 className="font-medium mb-2">Payment Details</h3>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="text-muted-foreground">Service:</div>
-                  <div>{selectedPlan.name}</div>
-                  <div className="text-muted-foreground">Amount:</div>
-                  <div>{formatCurrency(getAmount())}</div>
-                  <div className="text-muted-foreground">Status:</div>
-                  <div>
-                    <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800">
-                      Pending Verification
-                    </span>
-                  </div>
-                </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+      {/* Header with logo */}
+      <div className="bg-white/80 backdrop-blur-2xl border-b border-slate-200 sticky top-0 z-50 shadow-lg">
+        <div className="relative max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="absolute left-0 right-0 bottom-0 h-4 rounded-b-3xl bg-white/80 pointer-events-none -z-10" />
+          <div className="flex justify-between items-center py-3 md:py-5">
+            <div className="flex items-center space-x-3 group select-none">
+              <div
+                className="bg-gradient-to-r from-blue-600 to-blue-700 p-2.5 rounded-xl shadow transition-transform duration-700 group-hover:rotate-[16deg] group-hover:scale-110"
+                style={{ willChange: 'transform' }}
+              >
+                <Code className="h-7 w-7 text-white transition-transform duration-500 group-hover:animate-spin-slow" />
               </div>
+              <span className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent tracking-tight">
+                MERKL.DEV
+              </span>
             </div>
-          </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button variant="outline" onClick={() => navigate("/")}>
-              Go to Home
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate(-1)}
+              className="flex items-center text-slate-600 hover:text-blue-600 font-medium transition-colors rounded-xl"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
             </Button>
-            <Button onClick={() => navigate("/")}>
-              Back to Site
-            </Button>
-          </CardFooter>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Bank Transfer Payment</CardTitle>
-                <CardDescription>
-                  Complete your purchase by making a bank transfer to one of our accounts.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue={banks[0].id} onValueChange={handleBankChange}>
-                  <TabsList className="grid w-full grid-cols-5 mb-6">
-                    {banks.map(bank => (
-                      <TabsTrigger key={bank.id} value={bank.id} className="text-xs md:text-sm">
-                        {bank.id === 'abyssinia' ? 'Abyssinia' : bank.name.split(' ')[0]}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
-                  
-                  {banks.map(bank => (
-                    <TabsContent key={bank.id} value={bank.id}>
-                      <div className="space-y-4">
-                        <div>
-                          <Label>Bank Name</Label>
-                          <div className="text-lg font-medium">{bank.name}</div>
-                        </div>
-                        
-                        <div>
-                          <Label>Account Name</Label>
-                          <div className="text-lg font-medium">{bank.accountName}</div>
-                        </div>
-                        
-                        <div>
-                          <Label>Account Number</Label>
-                          <div className="flex items-center">
-                            <div className="text-lg font-mono font-medium bg-muted px-3 py-1 rounded border flex-1">
-                              {bank.accountNumber}
-                            </div>
-                            <Button 
-                              type="button" 
-                              variant="ghost" 
-                              size="icon"
-                              onClick={() => copyAccountNumber(bank.accountNumber)}
-                              className="ml-2"
-                            >
-                              <Copy className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </TabsContent>
-                  ))}
-                  
-                  <div className="mt-6 border-t pt-6">
-                    <div className="space-y-4">
-                      <div>
-                        <Label>Amount to Transfer</Label>
-                        <div className="text-2xl font-bold text-primary">
-                          {formatCurrency(getAmount())}
-                        </div>
-                        <p className="text-muted-foreground text-sm mt-1">
-                          Please transfer the exact amount
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <Form {...form}>
-                      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-6">
-                        <FormField
-                          control={form.control}
-                          name="bank"
-                          render={({ field }) => (
-                            <FormItem hidden>
-                              <FormControl>
-                                <Input {...field} />
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="reference"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Transfer Reference/Confirmation Number</FormLabel>
-                              <FormControl>
-                                <Input placeholder="e.g. TRN123456789" {...field} />
-                              </FormControl>
-                              <FormDescription>
-                                The reference number provided by your bank
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="receiptImage"
-                          render={({ field: { onChange, value, ...fieldProps } }) => (
-                            <FormItem>
-                              <FormLabel>Upload Receipt/Screenshot</FormLabel>
-                              <FormControl>
-                                <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center cursor-pointer hover:border-muted-foreground/50 transition-colors">
-                                  <Input
-                                    type="file"
-                                    accept="image/*"
-                                    className="hidden"
-                                    id="receipt-upload"
-                                    onChange={(e) => {
-                                      onChange(e.target.files);
-                                      handleFileChange(e);
-                                    }}
-                                    {...fieldProps}
-                                  />
-                                  <Label htmlFor="receipt-upload" className="cursor-pointer">
-                                    <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                                    <span className="text-muted-foreground font-medium">
-                                      {uploadedFile ? uploadedFile.name : 'Click to upload receipt'}
-                                    </span>
-                                    {!uploadedFile && (
-                                      <p className="text-xs text-muted-foreground mt-1">
-                                        JPG, PNG or PDF, max 5MB
-                                      </p>
-                                    )}
-                                  </Label>
-                                </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="notes"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Additional Notes (Optional)</FormLabel>
-                              <FormControl>
-                                <Textarea 
-                                  placeholder="Any additional information about your payment" 
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <Alert>
-                          <AlertTriangle className="h-4 w-4" />
-                          <AlertTitle>Payment verification</AlertTitle>
-                          <AlertDescription>
-                            Your payment will be verified by our admin team within 24 hours.
-                          </AlertDescription>
-                        </Alert>
-                        
-                        <Button
-                          type="submit"
-                          className="w-full"
-                          disabled={isSubmitting || isUploading}
-                        >
-                          <BanknoteIcon className="mr-2 h-4 w-4" />
-                          {isUploading ? "Uploading Receipt..." : isSubmitting ? "Submitting..." : "Submit Payment Details"}
-                        </Button>
-                      </form>
-                    </Form>
-                  </div>
-                </Tabs>
-              </CardContent>
-            </Card>
-          </div>
-          
-          <div>
-            <Card>
-              <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h3 className="font-medium mb-2">{selectedPlan.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    One-time payment
-                  </p>
-                  
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span>Service Fee</span>
-                      <span>{formatCurrency(getAmount())}</span>
-                    </div>
-                    <div className="flex justify-between font-medium text-lg border-t pt-2">
-                      <span>Total</span>
-                      <span>{formatCurrency(getAmount())}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="text-xs text-muted-foreground">
-                  <p>• Secure payment processing</p>
-                  <p>• 24-hour verification process</p>
-                  <p>• Email confirmation upon approval</p>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
-      )}
+      </div>
+
+      <div className="container mx-auto py-8 px-4 max-w-6xl">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2 bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent">
+            Complete Your {selectedPlan?.name || 'Custom Project'} Purchase
+          </h1>
+          <p className="text-slate-600 text-lg">
+            One-time payment - {formatCurrency(getAmount())}
+          </p>
+        </div>
+
+        {paymentSuccessful ? (
+          <div className="max-w-2xl mx-auto">
+            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-3xl">
+              <CardHeader className="text-center pb-6">
+                <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                  <CheckCircle2 className="h-10 w-10 text-white" />
+                </div>
+                <CardTitle className="text-2xl font-bold text-slate-800">Payment Submitted Successfully!</CardTitle>
+                <CardDescription className="text-lg text-slate-600">
+                  Your payment is now under review. We'll activate your project once verified.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <Alert className="bg-gradient-to-r from-yellow-50 to-amber-50 border-yellow-200 rounded-xl">
+                  <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                  <AlertTitle className="text-yellow-800">Payment Confirmation</AlertTitle>
+                  <AlertDescription className="text-yellow-700">
+                    Your payment has been submitted and is pending verification. You'll be notified once it's processed.
+                  </AlertDescription>
+                </Alert>
+                
+                <div className="bg-gradient-to-r from-slate-50 to-blue-50 border border-slate-200 rounded-xl p-6">
+                  <h3 className="font-semibold mb-4 text-slate-800">Payment Details</h3>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="text-slate-600">Service:</div>
+                    <div className="font-medium text-slate-800">{selectedPlan.name}</div>
+                    <div className="text-slate-600">Amount:</div>
+                    <div className="font-bold text-blue-600">{formatCurrency(getAmount())}</div>
+                    <div className="text-slate-600">Status:</div>
+                    <div>
+                      <span className="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-800 border border-yellow-200">
+                        Pending Verification
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-between pt-6">
+                <Button variant="outline" onClick={() => navigate("/")} className="rounded-xl px-6 py-3">
+                  Go to Home
+                </Button>
+                <Button 
+                  onClick={() => navigate("/")}
+                  className="rounded-xl px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md font-bold transition-transform active:scale-95"
+                >
+                  Back to Site
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+              <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-3xl">
+                <CardHeader className="pb-6">
+                  <CardTitle className="text-2xl font-bold text-slate-800">Bank Transfer Payment</CardTitle>
+                  <CardDescription className="text-slate-600">
+                    Complete your purchase by making a bank transfer to one of our accounts.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Tabs defaultValue={banks[0].id} onValueChange={handleBankChange}>
+                    <TabsList className="grid w-full grid-cols-5 mb-6 bg-slate-100/80 rounded-xl p-1">
+                      {banks.map(bank => (
+                        <TabsTrigger 
+                          key={bank.id} 
+                          value={bank.id} 
+                          className="text-xs md:text-sm rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                        >
+                          {bank.id === 'abyssinia' ? 'Abyssinia' : bank.name.split(' ')[0]}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+                    
+                    {banks.map(bank => (
+                      <TabsContent key={bank.id} value={bank.id}>
+                        <div className="space-y-6">
+                          <div className="bg-gradient-to-r from-slate-50 to-blue-50 rounded-xl p-6 border border-slate-200">
+                            <div className="space-y-4">
+                              <div>
+                                <Label className="text-slate-600 font-medium">Bank Name</Label>
+                                <div className="text-lg font-semibold text-slate-800">{bank.name}</div>
+                              </div>
+                              
+                              <div>
+                                <Label className="text-slate-600 font-medium">Account Name</Label>
+                                <div className="text-lg font-semibold text-slate-800">{bank.accountName}</div>
+                              </div>
+                              
+                              <div>
+                                <Label className="text-slate-600 font-medium">Account Number</Label>
+                                <div className="flex items-center mt-2">
+                                  <div className="text-lg font-mono font-semibold bg-white px-4 py-3 rounded-l-xl border border-r-0 border-slate-200 flex-1 text-slate-800">
+                                    {bank.accountNumber}
+                                  </div>
+                                  <Button 
+                                    type="button" 
+                                    variant="outline"
+                                    onClick={() => copyAccountNumber(bank.accountNumber)}
+                                    className="rounded-l-none rounded-r-xl border-l-0 px-4 py-3 h-auto hover:bg-blue-50"
+                                  >
+                                    <Copy className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white">
+                            <Label className="text-blue-100 font-medium">Amount to Transfer</Label>
+                            <div className="text-3xl font-bold mt-2">
+                              {formatCurrency(getAmount())}
+                            </div>
+                            <p className="text-blue-100 text-sm mt-2">
+                              Please transfer the exact amount
+                            </p>
+                          </div>
+                          
+                          <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                              <FormField
+                                control={form.control}
+                                name="bank"
+                                render={({ field }) => (
+                                  <FormItem hidden>
+                                    <FormControl>
+                                      <Input {...field} />
+                                    </FormControl>
+                                  </FormItem>
+                                )}
+                              />
+                              
+                              <FormField
+                                control={form.control}
+                                name="reference"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Transfer Reference/Confirmation Number</FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="e.g. TRN123456789" {...field} />
+                                    </FormControl>
+                                    <FormDescription>
+                                      The reference number provided by your bank
+                                    </FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              
+                              <FormField
+                                control={form.control}
+                                name="receiptImage"
+                                render={({ field: { onChange, value, ...fieldProps } }) => (
+                                  <FormItem>
+                                    <FormLabel>Upload Receipt/Screenshot</FormLabel>
+                                    <FormControl>
+                                      <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center cursor-pointer hover:border-muted-foreground/50 transition-colors">
+                                        <Input
+                                          type="file"
+                                          accept="image/*"
+                                          className="hidden"
+                                          id="receipt-upload"
+                                          onChange={(e) => {
+                                            onChange(e.target.files);
+                                            handleFileChange(e);
+                                          }}
+                                          {...fieldProps}
+                                        />
+                                        <Label htmlFor="receipt-upload" className="cursor-pointer">
+                                          <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                                          <span className="text-muted-foreground font-medium">
+                                            {uploadedFile ? uploadedFile.name : 'Click to upload receipt'}
+                                          </span>
+                                          {!uploadedFile && (
+                                            <p className="text-xs text-muted-foreground mt-1">
+                                              JPG, PNG or PDF, max 5MB
+                                            </p>
+                                          )}
+                                        </Label>
+                                      </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              
+                              <FormField
+                                control={form.control}
+                                name="notes"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Additional Notes (Optional)</FormLabel>
+                                    <FormControl>
+                                      <Textarea 
+                                        placeholder="Any additional information about your payment" 
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              
+                              <Alert className="bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200 rounded-xl">
+                                <AlertTriangle className="h-4 w-4 text-amber-600" />
+                                <AlertTitle className="text-amber-800">Payment verification</AlertTitle>
+                                <AlertDescription className="text-amber-700">
+                                  Your payment will be verified by our admin team within 24 hours.
+                                </AlertDescription>
+                              </Alert>
+                              
+                              <Button
+                                type="submit"
+                                className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg font-bold transition-transform active:scale-95 text-lg"
+                                disabled={isSubmitting || isUploading}
+                              >
+                                <BanknoteIcon className="mr-2 h-5 w-5" />
+                                {isUploading ? "Uploading Receipt..." : isSubmitting ? "Submitting..." : "Submit Payment Details"}
+                              </Button>
+                            </form>
+                          </Form>
+                        </div>
+                      </TabsContent>
+                    ))}
+                  </Tabs>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <div>
+              <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-3xl sticky top-24">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl font-bold text-slate-800">Order Summary</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="bg-gradient-to-r from-slate-50 to-blue-50 rounded-xl p-4 border border-slate-200">
+                    <h3 className="font-semibold mb-2 text-slate-800">{selectedPlan.name}</h3>
+                    <p className="text-sm text-slate-600 mb-4">
+                      One-time payment
+                    </p>
+                    
+                    <div className="space-y-3">
+                      <div className="flex justify-between text-slate-700">
+                        <span>Service Fee</span>
+                        <span className="font-medium">{formatCurrency(getAmount())}</span>
+                      </div>
+                      <div className="flex justify-between font-bold text-lg border-t border-slate-200 pt-3 text-blue-600">
+                        <span>Total</span>
+                        <span>{formatCurrency(getAmount())}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-xs text-slate-500 space-y-1 bg-slate-50 rounded-xl p-4">
+                    <p>• Secure payment processing</p>
+                    <p>• 24-hour verification process</p>
+                    <p>• Email confirmation upon approval</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Logo Animation Styles */}
+      <style>
+        {`
+          @keyframes spin-slow { 
+            0% { transform: rotate(0deg);}
+            100% { transform: rotate(360deg);}
+          }
+          .group:hover .animate-spin-slow {
+            animation: spin-slow 1.2s linear;
+          }
+        `}
+      </style>
     </div>
   );
 };
