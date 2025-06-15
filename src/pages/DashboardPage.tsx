@@ -15,7 +15,8 @@ const DashboardPage = () => {
     navigate('/');
   };
 
-  const isAdmin = userRole === 'admin';
+  // Updated admin check to include email fallback
+  const isAdmin = userRole === 'admin' || user?.email === 'nattyesquire@gmail.com';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -24,10 +25,10 @@ const DashboardPage = () => {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              Welcome{user?.email === 'nattyesquire@gmail.com' ? ' Admin' : ''}!
+              Welcome{isAdmin ? ' Admin' : ''}!
             </h1>
             <p className="text-muted-foreground">
-              {user?.email} • {userRole === 'admin' ? 'Administrator' : 'User'}
+              {user?.email} • {isAdmin ? 'Administrator' : 'User'}
             </p>
           </div>
           <Button onClick={handleSignOut} variant="outline">
