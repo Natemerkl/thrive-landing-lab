@@ -2,7 +2,7 @@
 import React from 'react';
 import { TabsContent } from '@/components/ui/tabs';
 import AdminOverview from './AdminOverview';
-import UserManagement from './UserManagement';
+import UserManagementTab from './UserManagementTab';
 import ContactMessages from './ContactMessages';
 import PaymentManagement from './PaymentManagement';
 
@@ -14,7 +14,7 @@ const AdminTabsContent: React.FC = () => {
       </TabsContent>
 
       <TabsContent value="users" className="space-y-4">
-        <UserManagement />
+        <UserManagementTab />
       </TabsContent>
 
       <TabsContent value="messages" className="space-y-4">
