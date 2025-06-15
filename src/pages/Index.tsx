@@ -1,4 +1,3 @@
-
 import HeroSection from "@/components/HeroSection";
 import Navigation from "@/components/Navigation";
 import ServicesSection from "@/components/ServicesSection";
@@ -11,6 +10,7 @@ import FinalCTA from "@/components/FinalCTA";
 import Footer from "@/components/Footer";
 import TrustLogos from "@/components/TrustLogos";
 import NewsletterSubscription from "@/components/NewsletterSubscription";
+import AdminAccess from '@/components/AdminAccess';
 
 const Index = () => {
   return (
@@ -34,6 +34,7 @@ const Index = () => {
       
       <FinalCTA />
       <Footer />
+      <AdminAccess />
     </div>
   );
 };
