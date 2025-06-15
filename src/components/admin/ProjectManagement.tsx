@@ -73,12 +73,12 @@ const ProjectManagement = () => {
   const fetchProjects = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // First, fetch projects with project_features and features
+      const { data: projectsData, error: projectsError } = await supabase
         .from('projects')
         .select(`
           *,
-          payments!projects_payment_id_fkey(amount, currency, plan_id, payer_email),
-          profiles!projects_user_id_fkey(full_name, email),
           project_features(
             id,
             quantity,
@@ -95,8 +95,8 @@ const ProjectManagement = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching projects:', error);
+      if (projectsError) {
+        console.error('Error fetching projects:', projectsError);
         toast({
           title: "Error",
           description: "Failed to fetch projects",
@@ -105,16 +105,40 @@ const ProjectManagement = () => {
         return;
       }
 
-      // Transform the data to match our interface
-      const transformedProjects: Project[] = (data || []).map(project => ({
-        ...project,
-        payment: Array.isArray(project.payments) && project.payments.length > 0 ? project.payments[0] : null,
-        profile: Array.isArray(project.profiles) && project.profiles.length > 0 ? project.profiles[0] : null,
-        project_features: (project.project_features || []).map(pf => ({
-          ...pf,
-          feature: pf.features
-        }))
-      }));
+      // Then fetch additional data separately to avoid complex joins
+      const transformedProjects: Project[] = await Promise.all(
+        (projectsData || []).map(async (project) => {
+          // Fetch payment data
+          let payment = null;
+          if (project.payment_id) {
+            const { data: paymentData } = await supabase
+              .from('payments')
+              .select('amount, currency, plan_id, payer_email')
+              .eq('id', project.payment_id)
+              .single();
+            payment = paymentData;
+          }
+
+          // Fetch profile data
+          let profile = null;
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('full_name, email')
+            .eq('id', project.user_id)
+            .single();
+          profile = profileData;
+
+          return {
+            ...project,
+            payment,
+            profile,
+            project_features: (project.project_features || []).map(pf => ({
+              ...pf,
+              feature: pf.features
+            }))
+          };
+        })
+      );
 
       setProjects(transformedProjects);
     } catch (error) {
