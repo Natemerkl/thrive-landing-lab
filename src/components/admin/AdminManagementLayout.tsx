@@ -30,9 +30,9 @@ const AdminManagementLayout: React.FC = () => {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-4">
-            <Button onClick={() => navigate('/dashboard')} variant="outline">
+            <Button onClick={() => navigate('/admin')} variant="outline">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Dashboard
+              Back to Admin Dashboard
             </Button>
             <div>
               <h1 className="text-3xl font-bold tracking-tight text-red-900">

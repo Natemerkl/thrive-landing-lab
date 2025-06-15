@@ -20,7 +20,7 @@ interface ContactMessage {
   created_at: string;
 }
 
-const ContactMessagesTab: React.FC = () => {
+const ContactMessagesTab = () => {
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState<Set<string>>(new Set());
@@ -123,6 +123,15 @@ const ContactMessagesTab: React.FC = () => {
     }
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'new': return 'bg-blue-100 text-blue-800';
+      case 'in_progress': return 'bg-yellow-100 text-yellow-800';
+      case 'resolved': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   if (loading) {
     return (
       <Card>
@@ -218,7 +227,10 @@ const ContactMessagesTab: React.FC = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={getStatusBadgeVariant(message.status)}>
+                      <Badge 
+                        variant={getStatusBadgeVariant(message.status)}
+                        className={getStatusColor(message.status)}
+                      >
                         {message.status.replace('_', ' ')}
                       </Badge>
                     </TableCell>

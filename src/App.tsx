@@ -11,6 +11,7 @@ import PaymentPage from "./pages/PaymentPage";
 import PaymentVerificationPage from "./pages/PaymentVerificationPage";
 import ProjectChoicePage from "./pages/ProjectChoicePage";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminManagementPage from "./pages/AdminManagementPage";
 import AuthPage from "./pages/AuthPage";
 import DashboardPage from "./pages/DashboardPage";
 import NotFound from "./pages/NotFound";
@@ -42,6 +43,11 @@ const App = () => (
             <Route path="/admin" element={
               <ProtectedRoute requireAdmin={true}>
                 <AdminDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/management" element={
+              <ProtectedRoute requireAdmin={true}>
+                <AdminManagementPage />
               </ProtectedRoute>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

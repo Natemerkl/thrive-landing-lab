@@ -22,6 +22,9 @@ const AdminNavigationCards: React.FC<AdminNavigationCardsProps> = ({ onTabChange
       case 'messages':
         onTabChange(action);
         break;
+      case 'admin-management':
+        navigate('/admin/management');
+        break;
       case 'choose-project':
         navigate('/choose-project');
         break;
@@ -58,6 +61,27 @@ const AdminNavigationCards: React.FC<AdminNavigationCardsProps> = ({ onTabChange
             className="w-full bg-red-600 hover:bg-red-700"
           >
             Open Admin Dashboard
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Admin Management Card */}
+      <Card className="cursor-pointer hover:shadow-lg transition-shadow border-indigo-200 bg-indigo-50">
+        <CardHeader>
+          <CardTitle className="flex items-center text-indigo-900">
+            <Settings className="mr-2 h-5 w-5" />
+            Admin Management
+          </CardTitle>
+          <CardDescription className="text-indigo-700">
+            Unified management interface for users, payments, and messages
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button 
+            onClick={() => handleNavigation('admin-management')} 
+            className="w-full bg-indigo-600 hover:bg-indigo-700"
+          >
+            Open Management
           </Button>
         </CardContent>
       </Card>
@@ -189,20 +213,20 @@ const AdminNavigationCards: React.FC<AdminNavigationCardsProps> = ({ onTabChange
       </Card>
 
       {/* Main Website Card */}
-      <Card className="cursor-pointer hover:shadow-lg transition-shadow border-indigo-200 bg-indigo-50">
+      <Card className="cursor-pointer hover:shadow-lg transition-shadow border-rose-200 bg-rose-50">
         <CardHeader>
-          <CardTitle className="flex items-center text-indigo-900">
+          <CardTitle className="flex items-center text-rose-900">
             <Home className="mr-2 h-5 w-5" />
             Main Website
           </CardTitle>
-          <CardDescription className="text-indigo-700">
+          <CardDescription className="text-rose-700">
             Return to the main landing page
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Button 
             onClick={() => handleNavigation('home')} 
-            className="w-full bg-indigo-600 hover:bg-indigo-700"
+            className="w-full bg-rose-600 hover:bg-rose-700"
           >
             Go to Home
           </Button>
