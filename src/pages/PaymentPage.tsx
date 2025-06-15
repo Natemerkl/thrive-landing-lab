@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -224,6 +225,14 @@ PAYMENT NOTES: Payment verification required before project can begin
               {/* Bank Transfer Details (Conditional) */}
               {paymentMethod === 'bank_transfer' && (
                 <div className="space-y-4">
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <h3 className="font-semibold text-blue-900 mb-2">Bank Transfer Details</h3>
+                    <div className="space-y-1 text-sm text-blue-800">
+                      <p><strong>Bank Name:</strong> Commercial Bank of Ethiopia</p>
+                      <p><strong>Account Name:</strong> Natnael Bereket Yoseph</p>
+                      <p><strong>Account Number:</strong> 100341531385</p>
+                    </div>
+                  </div>
                   <div>
                     <Label className="block text-gray-700 text-sm font-bold mb-2">Select Bank</Label>
                     <Select value={selectedBank} onValueChange={setSelectedBank}>
