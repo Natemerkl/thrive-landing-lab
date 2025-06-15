@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ArrowRight, Sparkles, Clock, Users } from 'lucide-react';
+import { ArrowRight, Sparkles, Clock, Users, ArrowLeft } from 'lucide-react';
 
 interface ProjectFeature {
   id: string;
@@ -65,7 +65,7 @@ const ProjectChoicePage = () => {
       id: 'multi-page',
       name: 'Multi-Page Website (3-5 pages)',
       description: 'About, Services, Portfolio, Contact pages',
-      price: 15000,
+      price: 3000,
       category: 'premium',
       icon: '📄'
     },
@@ -81,7 +81,7 @@ const ProjectChoicePage = () => {
       id: 'gallery-portfolio',
       name: 'Image Gallery/Portfolio',
       description: 'Showcase your work with beautiful image galleries',
-      price: 5000,
+      price: 2500,
       category: 'premium',
       icon: '🖼️'
     },
@@ -101,21 +101,38 @@ const ProjectChoicePage = () => {
       category: 'premium',
       icon: '📊'
     },
+    {
+      id: 'user-registration',
+      name: 'User Registration & Login',
+      description: 'Secure user accounts and authentication system',
+      price: 5000,
+      category: 'premium',
+      icon: '🔐'
+    },
 
     // Advanced Features
     {
-      id: 'user-auth',
-      name: 'User Registration & Login',
-      description: 'Secure user accounts and authentication system',
-      price: 25000,
+      id: 'ai-integration',
+      name: 'AI Integration for Website',
+      description: 'Custom AI chatbots, content generation, or smart features for your business',
+      price: 45000,
       category: 'advanced',
-      icon: '🔐'
+      recommended: true,
+      icon: '🤖'
     },
     {
-      id: 'payment-system',
-      name: 'Payment Integration',
-      description: 'Accept payments via Stripe, PayPal or local banks',
-      price: 20000,
+      id: 'payment-manual',
+      name: 'Manual Payment Integration',
+      description: 'Bank transfer and manual payment processing',
+      price: 12000,
+      category: 'advanced',
+      icon: '💰'
+    },
+    {
+      id: 'payment-automatic',
+      name: 'Automatic Payment Integration',
+      description: 'Stripe, PayPal, or automated payment processing',
+      price: 25000,
       category: 'advanced',
       icon: '💳'
     },
@@ -214,12 +231,23 @@ const ProjectChoicePage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="flex items-center mb-8">
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/')}
+            className="flex items-center text-gray-600 hover:text-gray-900"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Home
+          </Button>
+        </div>
+
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             What Would You Like Built? 🚀
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Pick exactly what you need. Start simple with a landing page, or go full-stack. 
+            Pick exactly what you need. Start simple with a landing page, or go full-stack with AI integration. 
             You only pay for what you choose!
           </p>
         </div>
@@ -321,6 +349,11 @@ const ProjectChoicePage = () => {
                           <div className="flex items-center">
                             <span className="text-2xl mr-2">{feature.icon}</span>
                             <h3 className="font-medium text-gray-900">{feature.name}</h3>
+                            {feature.recommended && (
+                              <Badge variant="outline" className="ml-2 text-xs">
+                                Recommended
+                              </Badge>
+                            )}
                           </div>
                           <p className="text-sm text-gray-600 mt-1">{feature.description}</p>
                           <p className="text-lg font-semibold text-blue-600 mt-2">
@@ -350,7 +383,7 @@ const ProjectChoicePage = () => {
                   </Badge>
                 </CardTitle>
                 <CardDescription>
-                  Full-stack applications with complex functionality
+                  Full-stack applications with AI integration and complex functionality
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -374,6 +407,11 @@ const ProjectChoicePage = () => {
                           <div className="flex items-center">
                             <span className="text-2xl mr-2">{feature.icon}</span>
                             <h3 className="font-medium text-gray-900">{feature.name}</h3>
+                            {feature.recommended && (
+                              <Badge variant="outline" className="ml-2 text-xs">
+                                Hot 🔥
+                              </Badge>
+                            )}
                           </div>
                           <p className="text-sm text-gray-600 mt-1">{feature.description}</p>
                           <p className="text-lg font-semibold text-purple-600 mt-2">
@@ -424,8 +462,11 @@ const ProjectChoicePage = () => {
                 <div className="text-xs text-gray-500 space-y-1">
                   <p>✅ 2 weeks free support included</p>
                   <p>✅ Mobile responsive design</p>
-                  <p>✅ Fast delivery (1-3 weeks)</p>
+                  <p>✅ Fast delivery (1-4 weeks)</p>
                   <p>✅ Source code ownership</p>
+                  {selectedFeatures.includes('ai-integration') && (
+                    <p>🤖 Custom AI trained for your business</p>
+                  )}
                 </div>
 
                 <Button 
