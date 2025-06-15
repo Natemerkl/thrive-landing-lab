@@ -1,6 +1,6 @@
 
 import { useEffect, useState, useRef } from 'react';
-import { Code, Zap, Database, CreditCard, Rocket, Palette, Globe } from 'lucide-react';
+import { Code, Zap, Database, CreditCard, Rocket, Palette, Globe, FileCode2, Layers, Settings } from 'lucide-react';
 
 const TrustLogos = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -26,12 +26,19 @@ const TrustLogos = () => {
   const technologies = [
     { name: 'React', icon: Code, color: 'text-blue-500' },
     { name: 'Next.js', icon: Zap, color: 'text-slate-700' },
-    { name: 'StocksyncAI', icon: null, isCustom: true },
+    { name: 'HTML5', icon: FileCode2, color: 'text-orange-500' },
+    { name: 'CSS3', icon: Palette, color: 'text-blue-400' },
+    { name: 'JavaScript', icon: Code, color: 'text-yellow-500' },
+    { name: 'TypeScript', icon: Code, color: 'text-blue-600' },
+    { name: 'Vite', icon: Zap, color: 'text-purple-500' },
     { name: 'Supabase', icon: Database, color: 'text-green-500' },
+    { name: 'SQL', icon: Database, color: 'text-blue-700' },
     { name: 'Stripe', icon: CreditCard, color: 'text-purple-500' },
     { name: 'Vercel', icon: Rocket, color: 'text-slate-800' },
     { name: 'Tailwind', icon: Palette, color: 'text-cyan-500' },
-    { name: 'Node.js', icon: Globe, color: 'text-emerald-500' }
+    { name: 'Node.js', icon: Globe, color: 'text-emerald-500' },
+    { name: 'Express', icon: Layers, color: 'text-gray-600' },
+    { name: 'API', icon: Settings, color: 'text-indigo-500' }
   ];
 
   // Duplicate the array for seamless infinite scroll
@@ -41,12 +48,7 @@ const TrustLogos = () => {
     <section ref={sectionRef} className="py-16 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-12">
-          <p className={`text-slate-600 text-lg transition-all duration-800 ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
-          }`}>
-            Trusted by Ethiopian startups, solo founders & local businesses
-          </p>
-          <p className={`text-slate-500 text-sm mt-2 transition-all duration-800 delay-200 ${
+          <p className={`text-slate-500 text-lg transition-all duration-800 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
           }`}>
             Built with modern, reliable technology stack
@@ -63,15 +65,9 @@ const TrustLogos = () => {
                 }`}
                 style={{ transitionDelay: `${(index % technologies.length) * 100}ms` }}
               >
-                {tech.isCustom ? (
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mb-2">
-                    SA
-                  </div>
-                ) : (
-                  <div className={`w-12 h-12 flex items-center justify-center mb-2 ${tech.color}`}>
-                    {tech.icon && <tech.icon size={32} strokeWidth={1.5} />}
-                  </div>
-                )}
+                <div className={`w-12 h-12 flex items-center justify-center mb-2 ${tech.color}`}>
+                  <tech.icon size={32} strokeWidth={1.5} />
+                </div>
                 <span className="text-sm text-slate-500 font-medium whitespace-nowrap">{tech.name}</span>
               </div>
             ))}

@@ -5,6 +5,7 @@ import ServicesSection from "@/components/ServicesSection";
 import WhyChooseMe from "@/components/WhyChooseMe";
 import HowItWorks from "@/components/HowItWorks";
 import PricingSection from "@/components/PricingSection";
+import RecentWorks from "@/components/RecentWorks";
 import Testimonials from "@/components/Testimonials";
 import FAQSection from "@/components/FAQSection";
 import FinalCTA from "@/components/FinalCTA";
@@ -22,6 +23,7 @@ const Index = () => {
       <WhyChooseMe />
       <HowItWorks />
       <PricingSection />
+      <RecentWorks />
       <Testimonials />
       <FAQSection />
       
