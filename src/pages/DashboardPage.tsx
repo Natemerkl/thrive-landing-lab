@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { LogOut, Settings, Users, CreditCard, Globe, FileText, CheckCircle } from 'lucide-react';
+import { LogOut, Settings, Users, CreditCard, Globe, FileText, CheckCircle, MessageSquare } from 'lucide-react';
 
 const DashboardPage = () => {
   const { user, userRole, signOut } = useAuth();
@@ -42,7 +42,7 @@ const DashboardPage = () => {
             <CardHeader>
               <CardTitle className="text-blue-900">Admin Access Granted</CardTitle>
               <CardDescription className="text-blue-700">
-                You have administrator privileges. Choose where you want to go:
+                You have administrator privileges. Access admin features below:
               </CardDescription>
             </CardHeader>
           </Card>
@@ -50,24 +50,47 @@ const DashboardPage = () => {
 
         {/* Navigation Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Admin Panel - Only for admin */}
+          {/* Admin Dashboard - Only for admin */}
           {isAdmin && (
-            <Card className="cursor-pointer hover:shadow-lg transition-shadow border-green-200 bg-green-50">
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow border-red-200 bg-red-50">
               <CardHeader>
-                <CardTitle className="flex items-center text-green-900">
+                <CardTitle className="flex items-center text-red-900">
                   <Settings className="mr-2 h-5 w-5" />
-                  Admin Panel
+                  Admin Dashboard
                 </CardTitle>
-                <CardDescription className="text-green-700">
-                  Manage users, payments, and system settings
+                <CardDescription className="text-red-700">
+                  Access full admin dashboard with all management tools
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Button 
                   onClick={() => navigate('/admin')} 
-                  className="w-full bg-green-600 hover:bg-green-700"
+                  className="w-full bg-red-600 hover:bg-red-700"
                 >
-                  Access Admin Panel
+                  Open Admin Dashboard
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* User Management - Only for admin */}
+          {isAdmin && (
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow border-orange-200 bg-orange-50">
+              <CardHeader>
+                <CardTitle className="flex items-center text-orange-900">
+                  <Users className="mr-2 h-5 w-5" />
+                  User Management
+                </CardTitle>
+                <CardDescription className="text-orange-700">
+                  View and manage user accounts and roles
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button 
+                  onClick={() => navigate('/admin')} 
+                  className="w-full bg-orange-600 hover:bg-orange-700"
+                >
+                  Manage Users
                 </Button>
               </CardContent>
             </Card>
@@ -96,24 +119,24 @@ const DashboardPage = () => {
             </Card>
           )}
 
-          {/* User Management - Only for admin */}
+          {/* Message Management - Only for admin */}
           {isAdmin && (
-            <Card className="cursor-pointer hover:shadow-lg transition-shadow border-orange-200 bg-orange-50">
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow border-teal-200 bg-teal-50">
               <CardHeader>
-                <CardTitle className="flex items-center text-orange-900">
-                  <Users className="mr-2 h-5 w-5" />
-                  User Management
+                <CardTitle className="flex items-center text-teal-900">
+                  <MessageSquare className="mr-2 h-5 w-5" />
+                  Contact Messages
                 </CardTitle>
-                <CardDescription className="text-orange-700">
-                  View and manage user accounts and roles
+                <CardDescription className="text-teal-700">
+                  Review and respond to customer inquiries
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Button 
                   onClick={() => navigate('/admin')} 
-                  className="w-full bg-orange-600 hover:bg-orange-700"
+                  className="w-full bg-teal-600 hover:bg-teal-700"
                 >
-                  Manage Users
+                  View Messages
                 </Button>
               </CardContent>
             </Card>
