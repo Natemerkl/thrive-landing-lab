@@ -1,6 +1,6 @@
 
 import { useEffect, useState, useRef } from 'react';
-import { Target, Wrench, Rocket } from 'lucide-react';
+import { Target, Wrench, Rocket, Code } from 'lucide-react';
 
 const HowItWorks = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -26,30 +26,47 @@ const HowItWorks = () => {
   const steps = [
     {
       number: 1,
-      title: 'Discovery Call',
-      description: 'We discuss your vision, goals, and requirements to create the perfect roadmap.',
+      title: 'Choose Your Features',
+      description: 'Pick from our feature library or select a pre-built package. Customize exactly what you need for your project.',
       icon: Target,
       color: 'text-blue-500'
     },
     {
       number: 2,
-      title: 'Design & Build',
-      description: 'I create and develop your solution with regular updates and your feedback.',
+      title: 'Secure Payment & Build',
+      description: 'Complete secure payment and I immediately start building your custom solution with regular progress updates.',
       icon: Wrench,
       color: 'text-purple-500'
     },
     {
       number: 3,
-      title: 'Launch & Scale',
-      description: 'Deploy your project with SEO optimization, documentation, and ongoing support.',
+      title: 'Launch & Support',
+      description: 'Receive your completed project with documentation, SEO optimization, and dedicated support period.',
       icon: Rocket,
       color: 'text-green-500'
     }
   ];
 
   return (
-    <section ref={sectionRef} className="py-20 bg-white">
+    <section ref={sectionRef} id="how-it-works" className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        {/* Logo Section */}
+        <div className="text-center mb-12">
+          <div className={`flex items-center justify-center space-x-3 group select-none mb-8 transition-all duration-800 ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}>
+            <div
+              className="bg-gradient-to-r from-blue-600 to-blue-700 p-3 rounded-xl shadow-lg transition-transform duration-700 group-hover:rotate-[16deg] group-hover:scale-110 animate-logo-pop"
+              style={{ willChange: 'transform' }}
+            >
+              <Code className="h-8 w-8 text-white transition-transform duration-500 group-hover:animate-spin-slow" />
+            </div>
+            <span className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent tracking-tight">
+              MERKL.DEV
+            </span>
+          </div>
+        </div>
+
         <div className="text-center mb-16">
           <h2 className={`text-4xl md:text-5xl font-bold text-slate-800 mb-6 transition-all duration-800 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
@@ -59,7 +76,7 @@ const HowItWorks = () => {
           <p className={`text-xl text-slate-600 max-w-3xl mx-auto transition-all duration-800 delay-200 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}>
-            A simple, transparent process that gets you from idea to launch quickly.
+            A simple, transparent process from feature selection to launch.
           </p>
         </div>
 
@@ -91,6 +108,27 @@ const HowItWorks = () => {
           ))}
         </div>
       </div>
+
+      {/* Logo Animation Styles */}
+      <style>
+        {`
+          @keyframes logo-pop {
+            0% { transform: scale(0.8) rotate(-10deg); opacity: 0; }
+            60% { transform: scale(1.1) rotate(8deg); opacity: 1;}
+            100% { transform: scale(1) rotate(0deg); opacity: 1;}
+          }
+          .animate-logo-pop { 
+            animation: logo-pop 1.3s cubic-bezier(.24,1.31,.6,.99) 0s 1 both;
+          }
+          @keyframes spin-slow { 
+            0% { transform: rotate(0deg);}
+            100% { transform: rotate(360deg);}
+          }
+          .group:hover .animate-spin-slow {
+            animation: spin-slow 1.2s linear;
+          }
+        `}
+      </style>
     </section>
   );
 };
