@@ -27,15 +27,16 @@ const HeroSection = () => {
         <h1 className={`text-5xl md:text-7xl font-bold text-slate-800 mb-6 transition-all duration-1000 ${
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
         }`}>
-          Design. Build. <span className="bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">Grow</span>
+          Design. Build. <span className="bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">Scale</span>
           <br />
-          <span className="text-3xl md:text-5xl text-slate-600">All by One Expert.</span>
+          <span className="text-3xl md:text-5xl text-slate-600">Expert Web Development in Ethiopia</span>
         </h1>
         
         <p className={`text-xl md:text-2xl text-slate-600 mb-8 max-w-3xl mx-auto transition-all duration-1000 delay-300 ${
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
         }`}>
-          Custom websites & full-stack solutions for brands ready to scale smart.
+          Custom websites & full-stack solutions built with modern technology. 
+          Professional development services at Ethiopian-friendly prices.
         </p>
 
         <div className={`flex flex-col sm:flex-row gap-4 justify-center items-center transition-all duration-1000 delay-600 ${

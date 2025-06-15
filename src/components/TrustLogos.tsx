@@ -22,13 +22,13 @@ const TrustLogos = () => {
     return () => observer.disconnect();
   }, []);
 
-  const logos = [
+  const technologies = [
+    { name: 'React', icon: '⚛️' },
+    { name: 'Next.js', icon: '▲' },
     { name: 'Supabase', icon: '🗄️' },
     { name: 'Stripe', icon: '💳' },
-    { name: 'Notion', icon: '📝' },
-    { name: 'Calendly', icon: '📅' },
-    { name: 'Zapier', icon: '⚡' },
-    { name: 'Airtable', icon: '📊' }
+    { name: 'Vercel', icon: '🚀' },
+    { name: 'Tailwind', icon: '🎨' }
   ];
 
   return (
@@ -38,21 +38,26 @@ const TrustLogos = () => {
           <p className={`text-slate-600 text-lg transition-all duration-800 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
           }`}>
-            Trusted by startups, solo founders & local businesses.
+            Trusted by Ethiopian startups, SMEs & international clients
+          </p>
+          <p className={`text-slate-500 text-sm mt-2 transition-all duration-800 delay-200 ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
+          }`}>
+            Built with modern, reliable technology stack
           </p>
         </div>
         
         <div className="grid grid-cols-3 md:grid-cols-6 gap-8 items-center justify-items-center">
-          {logos.map((logo, index) => (
+          {technologies.map((tech, index) => (
             <div
-              key={logo.name}
-              className={`flex flex-col items-center p-4 rounded-lg transition-all duration-800 hover:scale-110 ${
+              key={tech.name}
+              className={`flex flex-col items-center p-4 rounded-lg transition-all duration-800 hover:scale-110 hover:bg-slate-50 ${
                 isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
               }`}
               style={{ transitionDelay: `${index * 100}ms` }}
             >
-              <span className="text-3xl mb-2">{logo.icon}</span>
-              <span className="text-sm text-slate-500 font-medium">{logo.name}</span>
+              <span className="text-3xl mb-2">{tech.icon}</span>
+              <span className="text-sm text-slate-500 font-medium">{tech.name}</span>
             </div>
           ))}
         </div>

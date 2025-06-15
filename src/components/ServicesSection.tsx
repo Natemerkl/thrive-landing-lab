@@ -26,22 +26,32 @@ const ServicesSection = () => {
     {
       icon: '🎨',
       title: 'UI/UX & Web Design',
-      description: 'Beautiful, conversion-focused designs that captivate your audience and drive results.'
+      description: 'Modern, mobile-first designs that convert visitors into customers. User-centered approach with Ethiopian market insights and international standards.'
     },
     {
       icon: '💻',
-      title: 'Website Development',
-      description: 'Fast, modern websites built with Next.js, React, and Supabase for optimal performance.'
+      title: 'Full-Stack Development',
+      description: 'Complete web applications built with React, Next.js, Node.js, and Supabase. From simple websites to complex business management systems.'
     },
     {
-      icon: '⚙️',
-      title: 'Internal Tools & Automations',
-      description: 'Custom dashboards and workflow automations to streamline your business operations.'
+      icon: '⚡',
+      title: 'Performance Optimization',
+      description: 'Lightning-fast websites optimized for Ethiopian internet conditions. Advanced caching, image optimization, and CDN implementation.'
     },
     {
       icon: '🔍',
-      title: 'SEO Optimization',
-      description: 'Strategic SEO implementation to boost your search rankings and organic traffic.'
+      title: 'SEO & Digital Marketing',
+      description: 'Strategic SEO for Ethiopian and international markets. Google My Business optimization, local SEO, and content strategy.'
+    },
+    {
+      icon: '📱',
+      title: 'Mobile-First Development',
+      description: 'Progressive Web Apps (PWA) that work like native mobile apps. Offline functionality and app-like user experience.'
+    },
+    {
+      icon: '🛡️',
+      title: 'Security & Maintenance',
+      description: 'Enterprise-grade security, SSL certificates, automated backups, and ongoing maintenance to keep your site secure and updated.'
     }
   ];
 
@@ -52,26 +62,27 @@ const ServicesSection = () => {
           <h2 className={`text-4xl md:text-5xl font-bold text-slate-800 mb-6 transition-all duration-800 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}>
-            What I Can Build for You
+            Complete Web Development Services
           </h2>
           <p className={`text-xl text-slate-600 max-w-3xl mx-auto transition-all duration-800 delay-200 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}>
-            From stunning websites to powerful web applications, I deliver complete digital solutions.
+            From stunning websites to powerful web applications, I deliver end-to-end digital solutions 
+            tailored for Ethiopian businesses and international markets.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {services.map((service, index) => (
             <div
               key={service.title}
               className={`bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 border border-slate-100 ${
                 isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
               }`}
-              style={{ transitionDelay: `${(index + 1) * 200}ms` }}
+              style={{ transitionDelay: `${(index + 1) * 150}ms` }}
             >
               <div className="text-4xl mb-4">{service.icon}</div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-4">{service.title}</h3>
+              <h3 className="text-xl font-bold text-slate-800 mb-4">{service.title}</h3>
               <p className="text-slate-600 leading-relaxed">{service.description}</p>
             </div>
           ))}

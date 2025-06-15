@@ -29,59 +29,78 @@ const PricingSection = () => {
 
   const plans = [
     {
-      name: 'Starter Site',
-      price: '$999',
+      name: 'Starter Website',
+      price: '25,000 ETB',
       description: 'Perfect for small businesses and personal brands',
       features: [
-        'Responsive design',
-        'SEO optimization',
-        'Contact forms',
-        'Basic animations',
-        '1 week delivery'
+        'Responsive mobile-first design',
+        'SEO optimization & meta tags',
+        'Contact forms with validation',
+        'Google Analytics integration',
+        'Social media integration',
+        'SSL certificate setup',
+        'Performance optimization',
+        '1-2 week delivery',
+        '30 days free support'
       ],
       highlighted: false
     },
     {
       name: 'Business Pro',
-      price: '$2,499',
-      description: 'Ideal for growing businesses',
+      price: '65,000 ETB',
+      description: 'Ideal for growing businesses and startups',
       features: [
         'Custom web application',
-        'User authentication',
-        'Database integration',
-        'Admin dashboard',
-        '2-3 week delivery'
+        'User authentication system',
+        'Database integration (Supabase)',
+        'Admin dashboard panel',
+        'Payment integration (Stripe/PayPal)',
+        'Email automation setup',
+        'Advanced SEO optimization',
+        'Blog/CMS functionality',
+        'API integrations',
+        'Mobile app-like experience',
+        '2-3 week delivery',
+        '60 days free support'
       ],
       highlighted: true
     },
     {
-      name: 'Full Web App',
-      price: 'Custom',
-      description: 'Enterprise solutions and complex projects',
+      name: 'Enterprise Solution',
+      price: 'Custom Quote',
+      description: 'Complex projects and enterprise solutions',
       features: [
-        'Full-stack development',
-        'Custom integrations',
-        'Advanced features',
-        'Ongoing support',
-        'Timeline varies'
+        'Full-stack application development',
+        'Microservices architecture',
+        'Advanced backend systems',
+        'Third-party integrations',
+        'Multi-user role management',
+        'Advanced analytics dashboard',
+        'Automated testing suite',
+        'DevOps & deployment setup',
+        'Performance monitoring',
+        'Scalable cloud infrastructure',
+        'Timeline varies (4-12 weeks)',
+        '90 days free support'
       ],
       highlighted: false
     }
   ];
 
   return (
-    <section ref={sectionRef} className="py-20 bg-slate-50">
+    <section ref={sectionRef} id="pricing" className="py-20 bg-slate-50">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className={`text-4xl md:text-5xl font-bold text-slate-800 mb-6 transition-all duration-800 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}>
-            Simple, Transparent Pricing
+            Transparent Pricing in Ethiopian Birr
           </h2>
           <p className={`text-xl text-slate-600 max-w-3xl mx-auto transition-all duration-800 delay-200 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}>
-            Choose the package that fits your needs. All projects include revisions and support.
+            Professional web development services at Ethiopian-friendly rates. 
+            All projects include revisions, training, and ongoing support.
           </p>
         </div>
 
@@ -100,7 +119,7 @@ const PricingSection = () => {
             >
               {plan.highlighted && (
                 <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white text-center py-2 text-sm font-medium">
-                  Most Popular
+                  Most Popular ⭐
                 </div>
               )}
               
@@ -108,15 +127,15 @@ const PricingSection = () => {
                 <h3 className="text-2xl font-bold text-slate-800 mb-2">{plan.name}</h3>
                 <div className="text-4xl font-bold text-blue-600 mb-4">
                   {plan.price}
-                  {plan.price !== 'Custom' && <span className="text-lg text-slate-500">+</span>}
+                  {plan.price !== 'Custom Quote' && <span className="text-lg text-slate-500"> starting</span>}
                 </div>
                 <p className="text-slate-600 mb-6">{plan.description}</p>
                 
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-center text-slate-600">
-                      <span className="text-green-500 mr-2">✓</span>
-                      {feature}
+                    <li key={featureIndex} className="flex items-start text-slate-600">
+                      <span className="text-green-500 mr-2 mt-1 flex-shrink-0">✓</span>
+                      <span className="text-sm">{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -130,11 +149,16 @@ const PricingSection = () => {
                   }`}
                   variant={plan.highlighted ? 'default' : 'outline'}
                 >
-                  {plan.price === 'Custom' ? 'Get a Quote' : 'Start Now'}
+                  {plan.price === 'Custom Quote' ? 'Get Custom Quote' : 'Start Project'}
                 </Button>
               </div>
             </div>
           ))}
+        </div>
+        
+        <div className="text-center mt-12">
+          <p className="text-slate-600 text-lg mb-4">💳 Flexible payment options available</p>
+          <p className="text-slate-500">Payment plans available | Bank transfer accepted | No hidden fees</p>
         </div>
       </div>
     </section>
