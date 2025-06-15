@@ -9,6 +9,56 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      billing_history: {
+        Row: {
+          amount: number
+          billing_period_end: string | null
+          billing_period_start: string | null
+          created_at: string
+          currency: string | null
+          id: string
+          invoice_number: string
+          payment_id: string | null
+          payment_method: string | null
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          billing_period_end?: string | null
+          billing_period_start?: string | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          invoice_number: string
+          payment_id?: string | null
+          payment_method?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          billing_period_end?: string | null
+          billing_period_start?: string | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          invoice_number?: string
+          payment_id?: string | null
+          payment_method?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_history_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_inquiries: {
         Row: {
           budget_range: string | null
@@ -69,6 +119,90 @@ export type Database = {
           is_active?: boolean | null
           source?: string | null
           subscribed_at?: string
+        }
+        Relationships: []
+      }
+      payment_methods: {
+        Row: {
+          account_holder_name: string | null
+          account_number: string | null
+          bank_name: string | null
+          created_at: string
+          id: string
+          is_default: boolean | null
+          method_type: string
+          user_id: string | null
+        }
+        Insert: {
+          account_holder_name?: string | null
+          account_number?: string | null
+          bank_name?: string | null
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          method_type: string
+          user_id?: string | null
+        }
+        Update: {
+          account_holder_name?: string | null
+          account_number?: string | null
+          bank_name?: string | null
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          method_type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          bank: string
+          bank_reference: string
+          created_at: string
+          currency: string | null
+          id: string
+          notes: string | null
+          payer_email: string
+          payment_method: string
+          plan_id: string
+          receipt_url: string | null
+          status: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          bank: string
+          bank_reference: string
+          created_at?: string
+          currency?: string | null
+          id?: string
+          notes?: string | null
+          payer_email: string
+          payment_method: string
+          plan_id: string
+          receipt_url?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          bank?: string
+          bank_reference?: string
+          created_at?: string
+          currency?: string | null
+          id?: string
+          notes?: string | null
+          payer_email?: string
+          payment_method?: string
+          plan_id?: string
+          receipt_url?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }

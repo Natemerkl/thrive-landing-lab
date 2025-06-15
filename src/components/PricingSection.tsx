@@ -1,10 +1,12 @@
 
 import { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
 
 const PricingSection = () => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -27,10 +29,27 @@ const PricingSection = () => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const handleStartProject = (plan: any, isAnnual: boolean = false) => {
+    navigate('/payment', { 
+      state: { 
+        plan: {
+          id: plan.id,
+          name: plan.name,
+          monthly_price: plan.monthly_price,
+          annual_price: plan.annual_price,
+          features: plan.features
+        }, 
+        isAnnual 
+      } 
+    });
+  };
+
   const plans = [
     {
+      id: 'starter',
       name: 'Starter Website',
-      price: '12,000 ETB',
+      monthly_price: 12000,
+      annual_price: 120000,
       description: 'Perfect for small businesses and personal brands',
       features: [
         'Responsive mobile-first design',
@@ -47,8 +66,10 @@ const PricingSection = () => {
       highlighted: false
     },
     {
+      id: 'business',
       name: 'Business Pro',
-      price: '47,000 ETB',
+      monthly_price: 47000,
+      annual_price: 470000,
       description: 'Ideal for growing businesses and startups',
       features: [
         'Custom web application',
@@ -69,8 +90,11 @@ const PricingSection = () => {
       highlighted: true
     },
     {
+      id: 'enterprise',
       name: 'Enterprise Solution',
-      price: 'Custom Quote',
+      monthly_price: 0,
+      annual_price: 0,
+      price_display: 'Custom Quote',
       description: 'Complex projects and enterprise solutions',
       features: [
         'Full-stack application development',
@@ -93,6 +117,15 @@ const PricingSection = () => {
       highlighted: false
     }
   ];
+
+  const formatCurrency = (amount: number) => {
+    if (amount === 0) return 'Custom Quote';
+    return new Intl.NumberFormat('en-ET', {
+      style: 'currency',
+      currency: 'ETB',
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
 
   return (
     <section ref={sectionRef} id="pricing" className="py-20 bg-slate-50">
@@ -133,8 +166,8 @@ const PricingSection = () => {
               <div className="p-8">
                 <h3 className="text-2xl font-bold text-slate-800 mb-2">{plan.name}</h3>
                 <div className="text-4xl font-bold text-blue-600 mb-4">
-                  {plan.price}
-                  {plan.price !== 'Custom Quote' && <span className="text-lg text-slate-500"> starting</span>}
+                  {plan.price_display || formatCurrency(plan.monthly_price)}
+                  {!plan.price_display && plan.monthly_price > 0 && <span className="text-lg text-slate-500"> starting</span>}
                 </div>
                 <p className="text-slate-600 mb-6">{plan.description}</p>
                 
@@ -148,7 +181,13 @@ const PricingSection = () => {
                 </ul>
 
                 <Button 
-                  onClick={() => scrollToSection('contact')}
+                  onClick={() => {
+                    if (plan.monthly_price === 0) {
+                      scrollToSection('contact');
+                    } else {
+                      handleStartProject(plan);
+                    }
+                  }}
                   className={`w-full py-3 font-medium transition-all duration-300 ${
                     plan.highlighted
                       ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white'
@@ -156,7 +195,7 @@ const PricingSection = () => {
                   }`}
                   variant={plan.highlighted ? 'default' : 'outline'}
                 >
-                  {plan.price === 'Custom Quote' ? 'Get Custom Quote' : 'Start Project'}
+                  {plan.monthly_price === 0 ? 'Get Custom Quote' : 'Start Project'}
                 </Button>
               </div>
             </div>
