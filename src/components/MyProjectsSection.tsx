@@ -8,6 +8,20 @@ import { FolderOpen, Calendar, DollarSign, RefreshCw, Package, CheckCircle2, Fil
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 
+interface ProjectFeature {
+  id: string;
+  feature: {
+    id: string;
+    name: string;
+    description: string | null;
+    price: number;
+    category: string;
+  };
+  quantity: number;
+  custom_price: number | null;
+  notes: string | null;
+}
+
 interface Project {
   id: string;
   title: string;
@@ -21,6 +35,7 @@ interface Project {
     currency: string;
     plan_id: string;
   };
+  project_features: ProjectFeature[];
 }
 
 const MyProjectsSection: React.FC = () => {
@@ -42,7 +57,20 @@ const MyProjectsSection: React.FC = () => {
         .from('projects')
         .select(`
           *,
-          payment:payments(amount, currency, plan_id)
+          payment:payments(amount, currency, plan_id),
+          project_features(
+            id,
+            quantity,
+            custom_price,
+            notes,
+            feature:features(
+              id,
+              name,
+              description,
+              price,
+              category
+            )
+          )
         `)
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
@@ -138,44 +166,14 @@ const MyProjectsSection: React.FC = () => {
     }
   };
 
-  const parseProjectFeatures = (description: string | null) => {
-    if (!description) return [];
-    
-    // Extract features from the structured description
-    const lines = description.split('\n');
-    const features: string[] = [];
-    let inFeatureSection = false;
-    
-    for (const line of lines) {
-      const trimmedLine = line.trim();
-      
-      // Check if we're entering a features section
-      if (trimmedLine.includes('including:') || 
-          trimmedLine.includes('features:') || 
-          trimmedLine.includes('Features:') ||
-          trimmedLine.includes('package including:')) {
-        inFeatureSection = true;
-        continue;
-      }
-      
-      // Check if we're leaving the features section
-      if (inFeatureSection && (trimmedLine.startsWith('CLIENT INFORMATION:') || 
-          trimmedLine.startsWith('PROJECT STATUS:') ||
-          trimmedLine.startsWith('PAYMENT NOTES:'))) {
-        inFeatureSection = false;
-        continue;
-      }
-      
-      // Extract features (lines starting with • or -)
-      if (inFeatureSection && (trimmedLine.startsWith('•') || trimmedLine.startsWith('-'))) {
-        const feature = trimmedLine.replace(/^[•\-]\s*/, '').trim();
-        if (feature) {
-          features.push(feature);
-        }
-      }
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'starter': return 'text-green-600';
+      case 'business': return 'text-blue-600';
+      case 'enterprise': return 'text-purple-600';
+      case 'custom': return 'text-orange-600';
+      default: return 'text-gray-600';
     }
-    
-    return features;
   };
 
   const extractClientInfo = (description: string | null) => {
@@ -269,7 +267,6 @@ const MyProjectsSection: React.FC = () => {
       <CardContent>
         <div className="space-y-6">
           {projects.map((project) => {
-            const features = parseProjectFeatures(project.description);
             const clientInfo = extractClientInfo(project.description);
             
             return (
@@ -283,12 +280,6 @@ const MyProjectsSection: React.FC = () => {
                         {formatCurrency(project.payment.amount, project.payment.currency)} - {project.payment.plan_id.replace('-', ' ').toUpperCase()} Package
                       </div>
                     )}
-                    {clientInfo?.package && (
-                      <div className="flex items-center mt-1 text-sm text-blue-600">
-                        <Package className="h-4 w-4 mr-1" />
-                        Package: {clientInfo.package}
-                      </div>
-                    )}
                   </div>
                   <div className="flex items-center">
                     {getStatusIcon(project.status)}
@@ -298,20 +289,47 @@ const MyProjectsSection: React.FC = () => {
                   </div>
                 </div>
 
-                {features.length > 0 && (
+                {project.project_features && project.project_features.length > 0 && (
                   <div className="text-sm text-gray-700 bg-blue-50 p-4 rounded-lg">
                     <h4 className="font-medium text-blue-900 mb-3 flex items-center">
                       <FileText className="h-4 w-4 mr-2" />
                       Ordered Features & Services:
                     </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {features.map((feature, index) => (
-                        <div key={index} className="flex items-start">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {project.project_features.map((projectFeature) => (
+                        <div key={projectFeature.id} className="flex items-start bg-white p-3 rounded-lg border">
                           <CheckCircle2 className="h-4 w-4 text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
-                          <span className="text-blue-800">{feature}</span>
+                          <div className="flex-1">
+                            <span className="font-medium text-blue-800">{projectFeature.feature.name}</span>
+                            {projectFeature.feature.description && (
+                              <p className="text-xs text-blue-600 mt-1">{projectFeature.feature.description}</p>
+                            )}
+                            <div className="flex items-center justify-between mt-2">
+                              <span className={`text-xs px-2 py-1 rounded-full bg-gray-100 ${getCategoryColor(projectFeature.feature.category)}`}>
+                                {projectFeature.feature.category}
+                              </span>
+                              <span className="text-sm font-semibold text-blue-800">
+                                {formatCurrency(projectFeature.custom_price || projectFeature.feature.price, 'ETB')}
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       ))}
                     </div>
+                    {project.project_features.length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-blue-200">
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium text-blue-900">Features Total:</span>
+                          <span className="font-bold text-blue-900">
+                            {formatCurrency(
+                              project.project_features.reduce((total, pf) => 
+                                total + (pf.custom_price || pf.feature.price), 0
+                              ), 'ETB'
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 

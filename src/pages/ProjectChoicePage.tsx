@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -5,22 +6,30 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ArrowRight, Sparkles, Clock, Users, ArrowLeft } from 'lucide-react';
+import { ArrowRight, Sparkles, Clock, Users, ArrowLeft, RefreshCw } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
-interface ProjectFeature {
+interface DatabaseFeature {
   id: string;
   name: string;
-  description: string;
+  description: string | null;
   price: number;
-  category: 'essential' | 'premium' | 'advanced';
-  recommended?: boolean;
-  icon?: string;
+  category: string;
+  is_active: boolean;
 }
 
 const ProjectChoicePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [selectedFeatures, setSelectedFeatures] = useState<string[]>(['landing-page']); // Landing page is pre-selected
+  const { toast } = useToast();
+  const [features, setFeatures] = useState<DatabaseFeature[]>([]);
+  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchFeatures();
+  }, []);
 
   // Handle pre-selected features from pricing cards
   useEffect(() => {
@@ -30,156 +39,48 @@ const ProjectChoicePage = () => {
     }
   }, [location.state]);
 
-  const features: ProjectFeature[] = [
-    // Essential Features (Cheap - Good for landing pages)
-    {
-      id: 'landing-page',
-      name: '1 Page Landing Site',
-      description: 'Beautiful single page website with modern design',
-      price: 8000,
-      category: 'essential',
-      recommended: true,
-      icon: '🎯'
-    },
-    {
-      id: 'responsive-design',
-      name: 'Mobile Responsive Design',
-      description: 'Looks perfect on all devices - phones, tablets, desktop',
-      price: 2000,
-      category: 'essential',
-      recommended: true,
-      icon: '📱'
-    },
-    {
-      id: 'seo-basic',
-      name: 'Basic SEO Setup',
-      description: 'Meta tags, titles, and search engine optimization',
-      price: 1500,
-      category: 'essential',
-      recommended: true,
-      icon: '🔍'
-    },
-    {
-      id: 'contact-form',
-      name: 'Contact Form',
-      description: 'Simple contact form with email notifications',
-      price: 1000,
-      category: 'essential',
-      icon: '✉️'
-    },
-    
-    // Premium Features
-    {
-      id: 'multi-page',
-      name: 'Multi-Page Website (3-5 pages)',
-      description: 'About, Services, Portfolio, Contact pages',
-      price: 3000,
-      category: 'premium',
-      icon: '📄'
-    },
-    {
-      id: 'blog-cms',
-      name: 'Blog/News Section',
-      description: 'Content management system for blogs and updates',
-      price: 8000,
-      category: 'premium',
-      icon: '📝'
-    },
-    {
-      id: 'gallery-portfolio',
-      name: 'Image Gallery/Portfolio',
-      description: 'Showcase your work with beautiful image galleries',
-      price: 2500,
-      category: 'premium',
-      icon: '🖼️'
-    },
-    {
-      id: 'social-integration',
-      name: 'Social Media Integration',
-      description: 'Connect Instagram, Facebook, Twitter feeds',
-      price: 3000,
-      category: 'premium',
-      icon: '📲'
-    },
-    {
-      id: 'google-analytics',
-      name: 'Analytics Setup',
-      description: 'Track visitors and website performance',
-      price: 2000,
-      category: 'premium',
-      icon: '📊'
-    },
-    {
-      id: 'user-registration',
-      name: 'User Registration & Login',
-      description: 'Secure user accounts and authentication system',
-      price: 5000,
-      category: 'premium',
-      icon: '🔐'
-    },
+  const fetchFeatures = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('features')
+        .select('*')
+        .eq('is_active', true)
+        .order('category', { ascending: true })
+        .order('price', { ascending: true });
 
-    // Advanced Features
-    {
-      id: 'ai-integration',
-      name: 'AI Integration for Website',
-      description: 'Custom AI chatbots, content generation, or smart features for your business',
-      price: 45000,
-      category: 'advanced',
-      recommended: true,
-      icon: '🤖'
-    },
-    {
-      id: 'payment-manual',
-      name: 'Manual Payment Integration',
-      description: 'Bank transfer and manual payment processing',
-      price: 12000,
-      category: 'advanced',
-      icon: '💰'
-    },
-    {
-      id: 'payment-automatic',
-      name: 'Automatic Payment Integration',
-      description: 'Stripe, PayPal, or automated payment processing',
-      price: 25000,
-      category: 'advanced',
-      icon: '💳'
-    },
-    {
-      id: 'admin-panel',
-      name: 'Admin Dashboard',
-      description: 'Manage content, users, and site settings',
-      price: 30000,
-      category: 'advanced',
-      icon: '⚙️'
-    },
-    {
-      id: 'database-integration',
-      name: 'Database & Backend',
-      description: 'Store and manage dynamic content and user data',
-      price: 35000,
-      category: 'advanced',
-      icon: '🗄️'
-    },
-    {
-      id: 'api-integrations',
-      name: 'Third-party API Integrations',
-      description: 'Connect to external services and platforms',
-      price: 15000,
-      category: 'advanced',
-      icon: '🔌'
-    },
-    {
-      id: 'advanced-seo',
-      name: 'Advanced SEO & Performance',
-      description: 'Speed optimization, advanced SEO, schema markup',
-      price: 8000,
-      category: 'advanced',
-      icon: '🚀'
+      if (error) {
+        console.error('Error fetching features:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load features",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setFeatures(data || []);
+      
+      // Auto-select landing page if available
+      const landingPageFeature = data?.find(f => f.name.toLowerCase().includes('landing'));
+      if (landingPageFeature && selectedFeatures.length === 0) {
+        setSelectedFeatures([landingPageFeature.id]);
+      }
+    } catch (error) {
+      console.error('Error fetching features:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load features",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const handleFeatureToggle = (featureId: string) => {
-    if (featureId === 'landing-page') return; // Can't uncheck the base landing page
+    const feature = features.find(f => f.id === featureId);
+    if (feature?.name.toLowerCase().includes('landing')) return; // Can't uncheck the base landing page
     
     setSelectedFeatures(prev => 
       prev.includes(featureId) 
@@ -215,26 +116,81 @@ const ProjectChoicePage = () => {
       name: 'Custom Project',
       monthly_price: total,
       annual_price: total,
-      features: selectedFeaturesList.map(f => f.name)
+      features: selectedFeaturesList.map(f => f.name),
+      selectedFeatureIds: selectedFeatures // Pass the feature IDs for database storage
     };
 
     navigate('/payment', { 
       state: { 
         plan,
-        customFeatures: selectedFeaturesList
+        customFeatures: selectedFeaturesList,
+        selectedFeatureIds: selectedFeatures
       } 
     });
   };
 
-  const getCategoryFeatures = (category: 'essential' | 'premium' | 'advanced') => {
+  const getCategoryFeatures = (category: string) => {
     return features.filter(feature => feature.category === category);
   };
 
-  const getCategoryTotal = (category: 'essential' | 'premium' | 'advanced') => {
+  const getCategoryTotal = (category: string) => {
     return getCategoryFeatures(category)
       .filter(feature => selectedFeatures.includes(feature.id))
       .reduce((total, feature) => total + feature.price, 0);
   };
+
+  const getCategoryInfo = (category: string) => {
+    switch (category) {
+      case 'starter':
+        return {
+          title: 'Essential Features',
+          description: 'Great for small businesses, personal brands, and simple websites',
+          color: 'green',
+          badge: 'Perfect for startups'
+        };
+      case 'business':
+        return {
+          title: 'Premium Features',
+          description: 'Advanced functionality for growing businesses',
+          color: 'blue',
+          badge: 'Most popular'
+        };
+      case 'enterprise':
+        return {
+          title: 'Advanced Features',
+          description: 'Full-stack applications and complex functionality',
+          color: 'purple',
+          badge: 'Enterprise grade'
+        };
+      case 'custom':
+        return {
+          title: 'Custom Features',
+          description: 'Specialized features and integrations',
+          color: 'orange',
+          badge: 'Specialized'
+        };
+      default:
+        return {
+          title: category,
+          description: '',
+          color: 'gray',
+          badge: ''
+        };
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="text-center">
+            <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4" />
+            <p>Loading features...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
@@ -255,7 +211,7 @@ const ProjectChoicePage = () => {
             What Would You Like Built? 🚀
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Pick exactly what you need. Start simple with a landing page, or go full-stack with AI integration. 
+            Pick exactly what you need. Start simple with a landing page, or go full-stack with advanced features. 
             You only pay for what you choose!
           </p>
         </div>
@@ -263,180 +219,71 @@ const ProjectChoicePage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Feature Selection */}
           <div className="lg:col-span-3 space-y-8">
-            {/* Essential Features */}
-            <Card className="border-green-200 bg-green-50">
-              <CardHeader>
-                <CardTitle className="flex items-center text-green-800">
-                  <Sparkles className="mr-2 h-5 w-5" />
-                  Essential Features
-                  <Badge variant="secondary" className="ml-2 bg-green-100 text-green-800">
-                    Perfect for startups
-                  </Badge>
-                </CardTitle>
-                <CardDescription>
-                  Great for small businesses, personal brands, and simple websites
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {getCategoryFeatures('essential').map((feature) => (
-                    <div
-                      key={feature.id}
-                      className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${
-                        selectedFeatures.includes(feature.id)
-                          ? 'border-green-500 bg-green-100'
-                          : 'border-gray-200 bg-white hover:border-green-300'
-                      }`}
-                      onClick={() => handleFeatureToggle(feature.id)}
-                    >
-                      <div className="flex items-start space-x-3">
-                        <Checkbox
-                          checked={selectedFeatures.includes(feature.id)}
-                          disabled={feature.id === 'landing-page'}
-                          className="mt-1"
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center">
-                            <span className="text-2xl mr-2">{feature.icon}</span>
-                            <h3 className="font-medium text-gray-900">{feature.name}</h3>
-                            {feature.recommended && (
-                              <Badge variant="outline" className="ml-2 text-xs">
-                                Recommended
-                              </Badge>
-                            )}
+            {['starter', 'business', 'enterprise', 'custom'].map((category) => {
+              const categoryFeatures = getCategoryFeatures(category);
+              if (categoryFeatures.length === 0) return null;
+              
+              const categoryInfo = getCategoryInfo(category);
+              
+              return (
+                <Card key={category} className={`border-${categoryInfo.color}-200 bg-${categoryInfo.color}-50`}>
+                  <CardHeader>
+                    <CardTitle className={`flex items-center text-${categoryInfo.color}-800`}>
+                      {category === 'starter' && <Sparkles className="mr-2 h-5 w-5" />}
+                      {category === 'business' && <Users className="mr-2 h-5 w-5" />}
+                      {category === 'enterprise' && <Clock className="mr-2 h-5 w-5" />}
+                      {category === 'custom' && <ArrowRight className="mr-2 h-5 w-5" />}
+                      {categoryInfo.title}
+                      {categoryInfo.badge && (
+                        <Badge variant="secondary" className={`ml-2 bg-${categoryInfo.color}-100 text-${categoryInfo.color}-800`}>
+                          {categoryInfo.badge}
+                        </Badge>
+                      )}
+                    </CardTitle>
+                    <CardDescription>
+                      {categoryInfo.description}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {categoryFeatures.map((feature) => (
+                        <div
+                          key={feature.id}
+                          className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${
+                            selectedFeatures.includes(feature.id)
+                              ? `border-${categoryInfo.color}-500 bg-${categoryInfo.color}-100`
+                              : 'border-gray-200 bg-white hover:border-gray-300'
+                          }`}
+                          onClick={() => handleFeatureToggle(feature.id)}
+                        >
+                          <div className="flex items-start space-x-3">
+                            <Checkbox
+                              checked={selectedFeatures.includes(feature.id)}
+                              disabled={feature.name.toLowerCase().includes('landing')}
+                              className="mt-1"
+                            />
+                            <div className="flex-1">
+                              <h3 className="font-medium text-gray-900">{feature.name}</h3>
+                              {feature.description && (
+                                <p className="text-sm text-gray-600 mt-1">{feature.description}</p>
+                              )}
+                              <p className={`text-lg font-semibold text-${categoryInfo.color}-600 mt-2`}>
+                                {formatCurrency(feature.price)}
+                              </p>
+                            </div>
                           </div>
-                          <p className="text-sm text-gray-600 mt-1">{feature.description}</p>
-                          <p className="text-lg font-semibold text-green-600 mt-2">
-                            {formatCurrency(feature.price)}
-                          </p>
                         </div>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-                <div className="mt-4 p-3 bg-green-100 rounded-lg">
-                  <p className="text-sm text-green-800">
-                    <strong>Category Total: {formatCurrency(getCategoryTotal('essential'))}</strong>
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Premium Features */}
-            <Card className="border-blue-200 bg-blue-50">
-              <CardHeader>
-                <CardTitle className="flex items-center text-blue-800">
-                  <Users className="mr-2 h-5 w-5" />
-                  Premium Features
-                  <Badge variant="secondary" className="ml-2 bg-blue-100 text-blue-800">
-                    Most popular
-                  </Badge>
-                </CardTitle>
-                <CardDescription>
-                  Advanced functionality for growing businesses
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {getCategoryFeatures('premium').map((feature) => (
-                    <div
-                      key={feature.id}
-                      className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${
-                        selectedFeatures.includes(feature.id)
-                          ? 'border-blue-500 bg-blue-100'
-                          : 'border-gray-200 bg-white hover:border-blue-300'
-                      }`}
-                      onClick={() => handleFeatureToggle(feature.id)}
-                    >
-                      <div className="flex items-start space-x-3">
-                        <Checkbox
-                          checked={selectedFeatures.includes(feature.id)}
-                          className="mt-1"
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center">
-                            <span className="text-2xl mr-2">{feature.icon}</span>
-                            <h3 className="font-medium text-gray-900">{feature.name}</h3>
-                            {feature.recommended && (
-                              <Badge variant="outline" className="ml-2 text-xs">
-                                Recommended
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-sm text-gray-600 mt-1">{feature.description}</p>
-                          <p className="text-lg font-semibold text-blue-600 mt-2">
-                            {formatCurrency(feature.price)}
-                          </p>
-                        </div>
-                      </div>
+                    <div className={`mt-4 p-3 bg-${categoryInfo.color}-100 rounded-lg`}>
+                      <p className={`text-sm text-${categoryInfo.color}-800`}>
+                        <strong>Category Total: {formatCurrency(getCategoryTotal(category))}</strong>
+                      </p>
                     </div>
-                  ))}
-                </div>
-                <div className="mt-4 p-3 bg-blue-100 rounded-lg">
-                  <p className="text-sm text-blue-800">
-                    <strong>Category Total: {formatCurrency(getCategoryTotal('premium'))}</strong>
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Advanced Features */}
-            <Card className="border-purple-200 bg-purple-50">
-              <CardHeader>
-                <CardTitle className="flex items-center text-purple-800">
-                  <Clock className="mr-2 h-5 w-5" />
-                  Advanced Features
-                  <Badge variant="secondary" className="ml-2 bg-purple-100 text-purple-800">
-                    Enterprise grade
-                  </Badge>
-                </CardTitle>
-                <CardDescription>
-                  Full-stack applications with AI integration and complex functionality
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {getCategoryFeatures('advanced').map((feature) => (
-                    <div
-                      key={feature.id}
-                      className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${
-                        selectedFeatures.includes(feature.id)
-                          ? 'border-purple-500 bg-purple-100'
-                          : 'border-gray-200 bg-white hover:border-purple-300'
-                      }`}
-                      onClick={() => handleFeatureToggle(feature.id)}
-                    >
-                      <div className="flex items-start space-x-3">
-                        <Checkbox
-                          checked={selectedFeatures.includes(feature.id)}
-                          className="mt-1"
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center">
-                            <span className="text-2xl mr-2">{feature.icon}</span>
-                            <h3 className="font-medium text-gray-900">{feature.name}</h3>
-                            {feature.recommended && (
-                              <Badge variant="outline" className="ml-2 text-xs">
-                                Hot 🔥
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-sm text-gray-600 mt-1">{feature.description}</p>
-                          <p className="text-lg font-semibold text-purple-600 mt-2">
-                            {formatCurrency(feature.price)}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-4 p-3 bg-purple-100 rounded-lg">
-                  <p className="text-sm text-purple-800">
-                    <strong>Category Total: {formatCurrency(getCategoryTotal('advanced'))}</strong>
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
 
           {/* Order Summary Sidebar */}
@@ -472,9 +319,6 @@ const ProjectChoicePage = () => {
                   <p>✅ Mobile responsive design</p>
                   <p>✅ Fast delivery (1-4 weeks)</p>
                   <p>✅ Source code ownership</p>
-                  {selectedFeatures.includes('ai-integration') && (
-                    <p>🤖 Custom AI trained for your business</p>
-                  )}
                 </div>
 
                 <Button 

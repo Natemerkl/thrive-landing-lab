@@ -1,21 +1,43 @@
 
 import React, { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { FolderOpen, Calendar, User, DollarSign, RefreshCw, Plus, Edit } from 'lucide-react';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { supabase } from '@/integrations/supabase/client';
+import { 
+  FolderOpen, 
+  Calendar, 
+  DollarSign, 
+  RefreshCw, 
+  Package, 
+  CheckCircle2, 
+  FileText,
+  User,
+  Edit3,
+  Save,
+  X
+} from 'lucide-react';
+
+interface ProjectFeature {
+  id: string;
+  feature: {
+    id: string;
+    name: string;
+    description: string | null;
+    price: number;
+    category: string;
+  };
+  quantity: number;
+  custom_price: number | null;
+  notes: string | null;
+}
 
 interface Project {
   id: string;
-  user_id: string;
-  payment_id: string | null;
   title: string;
   description: string | null;
   status: string;
@@ -24,52 +46,53 @@ interface Project {
   notes: string | null;
   created_at: string;
   updated_at: string;
+  user_id: string;
   payment?: {
     amount: number;
-    payer_email: string;
+    currency: string;
     plan_id: string;
+    payer_email: string;
   };
+  profile?: {
+    full_name: string | null;
+    email: string | null;
+  };
+  project_features: ProjectFeature[];
 }
 
-interface Payment {
-  id: string;
-  amount: number;
-  payer_email: string;
-  plan_id: string;
-  user_id: string;
-}
-
-const ProjectManagement: React.FC = () => {
+const ProjectManagement = () => {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [updatingStatus, setUpdatingStatus] = useState<Set<string>>(new Set());
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [newProject, setNewProject] = useState({
-    title: '',
-    description: '',
-    payment_id: '',
-    notes: ''
-  });
+  const [editingProject, setEditingProject] = useState<string | null>(null);
+  const [editingNotes, setEditingNotes] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
     fetchProjects();
-    fetchPayments();
   }, []);
 
   const fetchProjects = async () => {
     try {
       setLoading(true);
-      console.log('Fetching projects...');
-      
       const { data, error } = await supabase
         .from('projects')
         .select(`
           *,
-          payment:payments(amount, payer_email, plan_id)
+          payment:payments(amount, currency, plan_id, payer_email),
+          profile:profiles(full_name, email),
+          project_features(
+            id,
+            quantity,
+            custom_price,
+            notes,
+            feature:features(
+              id,
+              name,
+              description,
+              price,
+              category
+            )
+          )
         `)
         .order('created_at', { ascending: false });
 
@@ -83,7 +106,6 @@ const ProjectManagement: React.FC = () => {
         return;
       }
 
-      console.log('Projects fetched:', data);
       setProjects(data || []);
     } catch (error) {
       console.error('Error fetching projects:', error);
@@ -97,39 +119,13 @@ const ProjectManagement: React.FC = () => {
     }
   };
 
-  const fetchPayments = async () => {
+  const updateProjectStatus = async (projectId: string, status: string) => {
     try {
-      const { data, error } = await supabase
-        .from('payments')
-        .select('id, amount, payer_email, plan_id, user_id')
-        .eq('status', 'verified')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching payments:', error);
-        return;
-      }
-
-      setPayments(data || []);
-    } catch (error) {
-      console.error('Error fetching payments:', error);
-    }
-  };
-
-  const updateProjectStatus = async (projectId: string, newStatus: string) => {
-    setUpdatingStatus(prev => new Set(prev).add(projectId));
-    
-    try {
-      const updateData: any = {
-        status: newStatus,
-        updated_at: new Date().toISOString()
-      };
-
-      if (newStatus === 'started' && !projects.find(p => p.id === projectId)?.start_date) {
-        updateData.start_date = new Date().toISOString();
-      }
+      const updateData: any = { status, updated_at: new Date().toISOString() };
       
-      if (newStatus === 'completed') {
+      if (status === 'started' && !projects.find(p => p.id === projectId)?.start_date) {
+        updateData.start_date = new Date().toISOString();
+      } else if (status === 'completed') {
         updateData.completion_date = new Date().toISOString();
       }
 
@@ -138,160 +134,62 @@ const ProjectManagement: React.FC = () => {
         .update(updateData)
         .eq('id', projectId);
 
-      if (error) {
-        console.error('Error updating project status:', error);
-        toast({
-          title: "Error",
-          description: "Failed to update project status",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      setProjects(prev => prev.map(project => 
-        project.id === projectId 
-          ? { ...project, ...updateData }
-          : project
-      ));
+      if (error) throw error;
 
       toast({
         title: "Success",
-        description: `Project status updated to ${newStatus}`,
+        description: "Project status updated successfully",
       });
-    } catch (error) {
+
+      fetchProjects();
+    } catch (error: any) {
       console.error('Error updating project status:', error);
       toast({
         title: "Error",
-        description: "Failed to update project status",
-        variant: "destructive",
-      });
-    } finally {
-      setUpdatingStatus(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(projectId);
-        return newSet;
-      });
-    }
-  };
-
-  const createProject = async () => {
-    try {
-      if (!newProject.title || !newProject.payment_id) {
-        toast({
-          title: "Error",
-          description: "Please fill in all required fields",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const selectedPayment = payments.find(p => p.id === newProject.payment_id);
-      if (!selectedPayment) {
-        toast({
-          title: "Error",
-          description: "Invalid payment selected",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const { error } = await supabase
-        .from('projects')
-        .insert({
-          title: newProject.title,
-          description: newProject.description,
-          payment_id: newProject.payment_id,
-          user_id: selectedPayment.user_id,
-          notes: newProject.notes,
-          status: 'pending'
-        });
-
-      if (error) {
-        console.error('Error creating project:', error);
-        toast({
-          title: "Error",
-          description: "Failed to create project",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      toast({
-        title: "Success",
-        description: "Project created successfully",
-      });
-
-      setCreateDialogOpen(false);
-      setNewProject({ title: '', description: '', payment_id: '', notes: '' });
-      fetchProjects();
-    } catch (error) {
-      console.error('Error creating project:', error);
-      toast({
-        title: "Error",
-        description: "Failed to create project",
+        description: error.message || "Failed to update project status",
         variant: "destructive",
       });
     }
   };
 
-  const updateProject = async () => {
-    if (!selectedProject) return;
-
+  const updateProjectNotes = async (projectId: string, notes: string) => {
     try {
       const { error } = await supabase
         .from('projects')
-        .update({
-          title: selectedProject.title,
-          description: selectedProject.description,
-          notes: selectedProject.notes,
+        .update({ 
+          notes,
           updated_at: new Date().toISOString()
         })
-        .eq('id', selectedProject.id);
+        .eq('id', projectId);
 
-      if (error) {
-        console.error('Error updating project:', error);
-        toast({
-          title: "Error",
-          description: "Failed to update project",
-          variant: "destructive",
-        });
-        return;
-      }
+      if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Project updated successfully",
+        description: "Project notes updated successfully",
       });
 
-      setEditDialogOpen(false);
-      setSelectedProject(null);
+      setEditingProject(null);
+      setEditingNotes('');
       fetchProjects();
-    } catch (error) {
-      console.error('Error updating project:', error);
+    } catch (error: any) {
+      console.error('Error updating project notes:', error);
       toast({
         title: "Error",
-        description: "Failed to update project",
+        description: error.message || "Failed to update project notes",
         variant: "destructive",
       });
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  const startEditingNotes = (projectId: string, currentNotes: string | null) => {
+    setEditingProject(projectId);
+    setEditingNotes(currentNotes || '');
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-ET', {
-      style: 'currency',
-      currency: 'ETB',
-      minimumFractionDigits: 0,
-    }).format(amount);
+  const cancelEditingNotes = () => {
+    setEditingProject(null);
+    setEditingNotes('');
   };
 
   const getStatusColor = (status: string) => {
@@ -305,9 +203,46 @@ const ProjectManagement: React.FC = () => {
     }
   };
 
-  const availablePayments = payments.filter(payment => 
-    !projects.some(project => project.payment_id === payment.id)
-  );
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return <CheckCircle2 className="h-4 w-4 text-green-600" />;
+      case 'in_progress':
+        return <RefreshCw className="h-4 w-4 text-yellow-600" />;
+      case 'started':
+        return <Package className="h-4 w-4 text-blue-600" />;
+      default:
+        return <Calendar className="h-4 w-4 text-gray-600" />;
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const formatCurrency = (amount: number, currency: string) => {
+    return new Intl.NumberFormat('en-ET', {
+      style: 'currency',
+      currency: currency || 'ETB',
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'starter': return 'text-green-600';
+      case 'business': return 'text-blue-600';
+      case 'enterprise': return 'text-purple-600';
+      case 'custom': return 'text-orange-600';
+      default: return 'text-gray-600';
+    }
+  };
 
   if (loading) {
     return (
@@ -334,216 +269,200 @@ const ProjectManagement: React.FC = () => {
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center">
             <FolderOpen className="mr-2 h-5 w-5" />
-            Project Management
+            Project Management ({projects.length})
           </div>
-          <div className="flex space-x-2">
-            <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button size="sm">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Project
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Create New Project</DialogTitle>
-                  <DialogDescription>
-                    Create a project from a verified payment
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium">Project Title</label>
-                    <Input
-                      value={newProject.title}
-                      onChange={(e) => setNewProject({...newProject, title: e.target.value})}
-                      placeholder="Enter project title"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Payment</label>
-                    <Select value={newProject.payment_id} onValueChange={(value) => setNewProject({...newProject, payment_id: value})}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a payment" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availablePayments.map((payment) => (
-                          <SelectItem key={payment.id} value={payment.id}>
-                            {payment.payer_email} - {formatCurrency(payment.amount)} ({payment.plan_id})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Description</label>
-                    <Textarea
-                      value={newProject.description}
-                      onChange={(e) => setNewProject({...newProject, description: e.target.value})}
-                      placeholder="Project description"
-                      rows={3}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Notes</label>
-                    <Textarea
-                      value={newProject.notes}
-                      onChange={(e) => setNewProject({...newProject, notes: e.target.value})}
-                      placeholder="Internal notes"
-                      rows={2}
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button onClick={createProject}>Create Project</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-            <Button onClick={fetchProjects} variant="outline" size="sm">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchProjects}
+            className="flex items-center"
+          >
+            <RefreshCw className="h-4 w-4 mr-1" />
+            Refresh
+          </Button>
         </CardTitle>
         <CardDescription>
-          Manage project status and track progress. Total projects: {projects.length}
+          Manage all client projects and track their progress
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {projects.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            No projects found. Create a project from verified payments.
-          </div>
-        ) : (
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Project Details</TableHead>
-                  <TableHead>Client & Payment</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Timeline</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {projects.map((project) => (
-                  <TableRow key={project.id}>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{project.title}</div>
-                        {project.description && (
-                          <div className="text-sm text-gray-500 max-w-xs truncate">
-                            {project.description}
+        <div className="space-y-6">
+          {projects.map((project) => (
+            <div key={project.id} className="border rounded-lg p-6 space-y-4 bg-white shadow-sm">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900">{project.title}</h3>
+                  
+                  {/* Client Information */}
+                  <div className="flex items-center mt-1 text-sm text-gray-600">
+                    <User className="h-4 w-4 mr-1" />
+                    {project.profile?.full_name || 'Unknown Client'} ({project.profile?.email || project.payment?.payer_email})
+                  </div>
+                  
+                  {/* Payment Information */}
+                  {project.payment && (
+                    <div className="flex items-center mt-1 text-sm text-gray-600">
+                      <DollarSign className="h-4 w-4 mr-1" />
+                      {formatCurrency(project.payment.amount, project.payment.currency)} - {project.payment.plan_id.replace('-', ' ').toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  {getStatusIcon(project.status)}
+                  <Select
+                    value={project.status}
+                    onValueChange={(value) => updateProjectStatus(project.id, value)}
+                  >
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="started">Started</SelectItem>
+                      <SelectItem value="in_progress">In Progress</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Project Features */}
+              {project.project_features && project.project_features.length > 0 && (
+                <div className="text-sm text-gray-700 bg-blue-50 p-4 rounded-lg">
+                  <h4 className="font-medium text-blue-900 mb-3 flex items-center">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Ordered Features & Services:
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {project.project_features.map((projectFeature) => (
+                      <div key={projectFeature.id} className="flex items-start bg-white p-3 rounded-lg border">
+                        <CheckCircle2 className="h-4 w-4 text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1">
+                          <span className="font-medium text-blue-800">{projectFeature.feature.name}</span>
+                          {projectFeature.feature.description && (
+                            <p className="text-xs text-blue-600 mt-1">{projectFeature.feature.description}</p>
+                          )}
+                          <div className="flex items-center justify-between mt-2">
+                            <span className={`text-xs px-2 py-1 rounded-full bg-gray-100 ${getCategoryColor(projectFeature.feature.category)}`}>
+                              {projectFeature.feature.category}
+                            </span>
+                            <span className="text-sm font-semibold text-blue-800">
+                              {formatCurrency(projectFeature.custom_price || projectFeature.feature.price, 'ETB')}
+                            </span>
                           </div>
-                        )}
-                        {project.notes && (
-                          <div className="text-xs text-blue-600 mt-1">
-                            Notes: {project.notes}
-                          </div>
-                        )}
+                        </div>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        {project.payment && (
-                          <>
-                            <div className="text-sm font-medium">{project.payment.payer_email}</div>
-                            <div className="text-sm text-gray-500">
-                              {formatCurrency(project.payment.amount)} - {project.payment.plan_id}
-                            </div>
-                          </>
+                    ))}
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-blue-200">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-blue-900">Features Total:</span>
+                      <span className="font-bold text-blue-900">
+                        {formatCurrency(
+                          project.project_features.reduce((total, pf) => 
+                            total + (pf.custom_price || pf.feature.price), 0
+                          ), 'ETB'
                         )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getStatusColor(project.status)}>
-                        {project.status.replace('_', ' ')}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        <div>Created: {formatDate(project.created_at)}</div>
-                        {project.start_date && (
-                          <div>Started: {formatDate(project.start_date)}</div>
-                        )}
-                        {project.completion_date && (
-                          <div>Completed: {formatDate(project.completion_date)}</div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Select
-                          value={project.status}
-                          onValueChange={(newStatus) => updateProjectStatus(project.id, newStatus)}
-                          disabled={updatingStatus.has(project.id)}
-                        >
-                          <SelectTrigger className="w-32">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="started">Started</SelectItem>
-                            <SelectItem value="in_progress">In Progress</SelectItem>
-                            <SelectItem value="completed">Completed</SelectItem>
-                            <SelectItem value="cancelled">Cancelled</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-                          <DialogTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => setSelectedProject(project)}
-                            >
-                              <Edit className="h-3 w-3" />
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Edit Project</DialogTitle>
-                            </DialogHeader>
-                            {selectedProject && (
-                              <div className="space-y-4">
-                                <div>
-                                  <label className="text-sm font-medium">Project Title</label>
-                                  <Input
-                                    value={selectedProject.title}
-                                    onChange={(e) => setSelectedProject({...selectedProject, title: e.target.value})}
-                                  />
-                                </div>
-                                <div>
-                                  <label className="text-sm font-medium">Description</label>
-                                  <Textarea
-                                    value={selectedProject.description || ''}
-                                    onChange={(e) => setSelectedProject({...selectedProject, description: e.target.value})}
-                                    rows={3}
-                                  />
-                                </div>
-                                <div>
-                                  <label className="text-sm font-medium">Notes</label>
-                                  <Textarea
-                                    value={selectedProject.notes || ''}
-                                    onChange={(e) => setSelectedProject({...selectedProject, notes: e.target.value})}
-                                    rows={2}
-                                  />
-                                </div>
-                              </div>
-                            )}
-                            <DialogFooter>
-                              <Button onClick={updateProject}>Update Project</Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Project Notes */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">Admin Notes:</Label>
+                  {editingProject !== project.id && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => startEditingNotes(project.id, project.notes)}
+                      className="h-auto p-1"
+                    >
+                      <Edit3 className="h-3 w-3" />
+                    </Button>
+                  )}
+                </div>
+                
+                {editingProject === project.id ? (
+                  <div className="space-y-2">
+                    <Textarea
+                      value={editingNotes}
+                      onChange={(e) => setEditingNotes(e.target.value)}
+                      placeholder="Add notes about this project..."
+                      className="min-h-[80px]"
+                    />
+                    <div className="flex space-x-2">
+                      <Button
+                        size="sm"
+                        onClick={() => updateProjectNotes(project.id, editingNotes)}
+                        className="flex items-center"
+                      >
+                        <Save className="h-3 w-3 mr-1" />
+                        Save
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={cancelEditingNotes}
+                        className="flex items-center"
+                      >
+                        <X className="h-3 w-3 mr-1" />
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-md min-h-[60px]">
+                    {project.notes || 'No notes added yet...'}
+                  </div>
+                )}
+              </div>
+
+              {/* Project Timeline */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-3 border-t">
+                <div className="text-sm">
+                  <div className="flex items-center text-gray-500 mb-1">
+                    <Calendar className="h-4 w-4 mr-1" />
+                    <span className="font-medium">Created</span>
+                  </div>
+                  <span className="text-gray-900">{formatDate(project.created_at)}</span>
+                </div>
+                
+                {project.start_date && (
+                  <div className="text-sm">
+                    <div className="flex items-center text-blue-500 mb-1">
+                      <Package className="h-4 w-4 mr-1" />
+                      <span className="font-medium">Started</span>
+                    </div>
+                    <span className="text-blue-700">{formatDate(project.start_date)}</span>
+                  </div>
+                )}
+                
+                {project.completion_date && (
+                  <div className="text-sm">
+                    <div className="flex items-center text-green-500 mb-1">
+                      <CheckCircle2 className="h-4 w-4 mr-1" />
+                      <span className="font-medium">Completed</span>
+                    </div>
+                    <span className="text-green-700">{formatDate(project.completion_date)}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+          
+          {projects.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              <FolderOpen className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+              <p className="text-lg font-medium">No projects found</p>
+              <p className="text-sm">Projects will appear here once clients make payments</p>
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

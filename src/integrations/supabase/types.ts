@@ -98,6 +98,39 @@ export type Database = {
         }
         Relationships: []
       }
+      features: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          price?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       newsletter_subscriptions: {
         Row: {
           email: string
@@ -229,6 +262,51 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      project_features: {
+        Row: {
+          created_at: string
+          custom_price: number | null
+          feature_id: string
+          id: string
+          notes: string | null
+          project_id: string
+          quantity: number
+        }
+        Insert: {
+          created_at?: string
+          custom_price?: number | null
+          feature_id: string
+          id?: string
+          notes?: string | null
+          project_id: string
+          quantity?: number
+        }
+        Update: {
+          created_at?: string
+          custom_price?: number | null
+          feature_id?: string
+          id?: string
+          notes?: string | null
+          project_id?: string
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_features_feature_id_fkey"
+            columns: ["feature_id"]
+            isOneToOne: false
+            referencedRelation: "features"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_features_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       project_quotes: {
         Row: {
