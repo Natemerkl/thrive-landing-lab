@@ -250,6 +250,16 @@ const PaymentPage: React.FC = () => {
         title: "Success!",
         description: "Payment information submitted successfully!",
       });
+
+      // Redirect to payment verification page
+      setTimeout(() => {
+        navigate('/payment-verification', { 
+          state: { 
+            paymentId: paymentData.id,
+            plan: selectedPlan 
+          } 
+        });
+      }, 2000);
       
     } catch (error: any) {
       console.error("Error submitting payment:", error);
@@ -422,10 +432,15 @@ const PaymentPage: React.FC = () => {
                   Go to Home
                 </Button>
                 <Button 
-                  onClick={() => navigate("/")}
+                  onClick={() => navigate("/payment-verification", { 
+                    state: { 
+                      paymentId: paymentSuccessful ? 'temp-id' : null,
+                      plan: selectedPlan 
+                    } 
+                  })}
                   className="rounded-xl px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md font-bold transition-transform active:scale-95"
                 >
-                  Back to Site
+                  Check Status
                 </Button>
               </CardFooter>
             </Card>
@@ -587,7 +602,7 @@ const PaymentPage: React.FC = () => {
                                 <AlertTriangle className="h-4 w-4 text-amber-600" />
                                 <AlertTitle className="text-amber-800">Payment verification</AlertTitle>
                                 <AlertDescription className="text-amber-700">
-                                  Your payment will be verified by our admin team within 24 hours.
+                                  Your payment will be verified by our payment management within 5-10mins.
                                 </AlertDescription>
                               </Alert>
                               

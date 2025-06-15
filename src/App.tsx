@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import PaymentPage from "./pages/PaymentPage";
+import PaymentVerificationPage from "./pages/PaymentVerificationPage";
 import ProjectChoicePage from "./pages/ProjectChoicePage";
 import AdminDashboard from "./pages/AdminDashboard";
 import AuthPage from "./pages/AuthPage";
@@ -33,6 +34,11 @@ const App = () => (
             } />
             <Route path="/choose-project" element={<ProjectChoicePage />} />
             <Route path="/payment" element={<PaymentPage />} />
+            <Route path="/payment-verification" element={
+              <ProtectedRoute>
+                <PaymentVerificationPage />
+              </ProtectedRoute>
+            } />
             <Route path="/admin" element={
               <ProtectedRoute requireAdmin={true}>
                 <AdminDashboard />
