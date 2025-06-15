@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -191,7 +190,6 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="users" className="space-y-4">
-            {console.log('Rendering users tab content')}
             <UserManagement />
           </TabsContent>
 
