@@ -48,18 +48,17 @@ const UserManagementTab = () => {
         return;
       }
 
+      console.log('Profiles fetched:', profiles?.length);
+
+      // Fetch user roles separately and handle potential errors
       const { data: userRoles, error: rolesError } = await supabase
         .from('user_roles')
         .select('user_id, role');
 
       if (rolesError) {
         console.error('Error fetching roles:', rolesError);
-        toast({
-          title: "Error",
-          description: "Failed to fetch user roles",
-          variant: "destructive",
-        });
-        return;
+        // Don't show error toast for roles - we'll default to 'user'
+        console.log('Defaulting all users to "user" role due to roles fetch error');
       }
 
       const usersWithRoles = profiles?.map(profile => {
@@ -70,7 +69,7 @@ const UserManagementTab = () => {
         };
       }) || [];
 
-      console.log('Users fetched:', usersWithRoles);
+      console.log('Users with roles:', usersWithRoles);
       setUsers(usersWithRoles);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -88,27 +87,42 @@ const UserManagementTab = () => {
     setUpdatingRoles(prev => new Set(prev).add(userId));
     
     try {
-      const { data: existingRole } = await supabase
+      console.log(`Updating user ${userId} role to ${newRole}`);
+      
+      // Check if user already has a role
+      const { data: existingRole, error: checkError } = await supabase
         .from('user_roles')
         .select('id')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
 
+      if (checkError) {
+        console.error('Error checking existing role:', checkError);
+        throw checkError;
+      }
+
+      let error;
       if (existingRole) {
-        const { error } = await supabase
+        // Update existing role
+        const { error: updateError } = await supabase
           .from('user_roles')
           .update({ role: newRole })
           .eq('user_id', userId);
-
-        if (error) throw error;
+        error = updateError;
       } else {
-        const { error } = await supabase
+        // Insert new role
+        const { error: insertError } = await supabase
           .from('user_roles')
           .insert({ user_id: userId, role: newRole });
-
-        if (error) throw error;
+        error = insertError;
       }
 
+      if (error) {
+        console.error('Error updating user role:', error);
+        throw error;
+      }
+
+      // Update local state
       setUsers(prev => prev.map(user => 
         user.id === userId ? { ...user, role: newRole } : user
       ));
