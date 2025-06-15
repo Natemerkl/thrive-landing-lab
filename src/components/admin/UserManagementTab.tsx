@@ -22,6 +22,8 @@ const UserManagementTab = () => {
   const [updatingRoles, setUpdatingRoles] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
+  console.log('UserManagementTab rendered, users count:', users.length);
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -29,6 +31,7 @@ const UserManagementTab = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
+      console.log('Fetching users...');
       
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
@@ -67,6 +70,7 @@ const UserManagementTab = () => {
         };
       }) || [];
 
+      console.log('Users fetched:', usersWithRoles);
       setUsers(usersWithRoles);
     } catch (error) {
       console.error('Error fetching users:', error);

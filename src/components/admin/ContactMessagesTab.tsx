@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MessageSquare, Mail, Phone, RefreshCw, Eye } from 'lucide-react';
+import { MessageSquare, Eye, CheckCircle, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface ContactMessage {
@@ -18,6 +18,7 @@ interface ContactMessage {
   budget_range: string | null;
   status: string;
   created_at: string;
+  updated_at: string;
 }
 
 const ContactMessagesTab = () => {
@@ -26,6 +27,8 @@ const ContactMessagesTab = () => {
   const [updatingStatus, setUpdatingStatus] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
+  console.log('ContactMessagesTab rendered, messages count:', messages.length);
+
   useEffect(() => {
     fetchMessages();
   }, []);
@@ -33,6 +36,8 @@ const ContactMessagesTab = () => {
   const fetchMessages = async () => {
     try {
       setLoading(true);
+      console.log('Fetching contact messages...');
+      
       const { data, error } = await supabase
         .from('contact_inquiries')
         .select('*')
@@ -48,6 +53,7 @@ const ContactMessagesTab = () => {
         return;
       }
 
+      console.log('Messages fetched:', data);
       setMessages(data || []);
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -67,7 +73,10 @@ const ContactMessagesTab = () => {
     try {
       const { error } = await supabase
         .from('contact_inquiries')
-        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .update({ 
+          status: newStatus, 
+          updated_at: new Date().toISOString() 
+        })
         .eq('id', messageId);
 
       if (error) {
@@ -80,8 +89,8 @@ const ContactMessagesTab = () => {
         return;
       }
 
-      setMessages(prev => prev.map(msg => 
-        msg.id === messageId ? { ...msg, status: newStatus } : msg
+      setMessages(prev => prev.map(message => 
+        message.id === messageId ? { ...message, status: newStatus } : message
       ));
 
       toast({
@@ -112,15 +121,6 @@ const ContactMessagesTab = () => {
       hour: '2-digit',
       minute: '2-digit'
     });
-  };
-
-  const getStatusBadgeVariant = (status: string) => {
-    switch (status) {
-      case 'new': return 'default';
-      case 'in_progress': return 'secondary';
-      case 'resolved': return 'outline';
-      default: return 'default';
-    }
   };
 
   const getStatusColor = (status: string) => {
@@ -178,7 +178,7 @@ const ContactMessagesTab = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Contact</TableHead>
+                  <TableHead>Contact Info</TableHead>
                   <TableHead>Project Details</TableHead>
                   <TableHead>Message</TableHead>
                   <TableHead>Status</TableHead>
@@ -192,43 +192,30 @@ const ContactMessagesTab = () => {
                     <TableCell>
                       <div>
                         <div className="font-medium">{message.name}</div>
-                        <div className="text-sm text-gray-500 flex items-center">
-                          <Mail className="h-3 w-3 mr-1" />
-                          {message.email}
-                        </div>
+                        <div className="text-sm text-gray-500">{message.email}</div>
                         {message.phone && (
-                          <div className="text-sm text-gray-500 flex items-center">
-                            <Phone className="h-3 w-3 mr-1" />
-                            {message.phone}
-                          </div>
+                          <div className="text-sm text-gray-500">{message.phone}</div>
                         )}
                       </div>
                     </TableCell>
                     <TableCell>
                       <div>
                         {message.project_type && (
-                          <div className="text-sm">
-                            <span className="font-medium">Type:</span> {message.project_type}
-                          </div>
+                          <div className="text-sm">{message.project_type}</div>
                         )}
                         {message.budget_range && (
-                          <div className="text-sm">
-                            <span className="font-medium">Budget:</span> {message.budget_range}
-                          </div>
+                          <div className="text-sm text-gray-500">Budget: {message.budget_range}</div>
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="max-w-xs">
-                      <div className="truncate" title={message.message}>
-                        {message.message.length > 100 
-                          ? `${message.message.substring(0, 100)}...` 
-                          : message.message
-                        }
+                    <TableCell>
+                      <div className="max-w-xs truncate" title={message.message}>
+                        {message.message}
                       </div>
                     </TableCell>
                     <TableCell>
                       <Badge 
-                        variant={getStatusBadgeVariant(message.status)}
+                        variant="secondary"
                         className={getStatusColor(message.status)}
                       >
                         {message.status.replace('_', ' ')}
@@ -245,28 +232,33 @@ const ContactMessagesTab = () => {
                             variant="outline"
                             onClick={() => updateMessageStatus(message.id, 'in_progress')}
                             disabled={updatingStatus.has(message.id)}
+                            className="text-yellow-600 border-yellow-600 hover:bg-yellow-50"
                           >
                             {updatingStatus.has(message.id) ? (
                               <RefreshCw className="h-3 w-3 animate-spin" />
                             ) : (
                               <>
                                 <Eye className="h-3 w-3 mr-1" />
-                                Review
+                                In Progress
                               </>
                             )}
                           </Button>
                         )}
-                        {message.status === 'in_progress' && (
+                        {(message.status === 'new' || message.status === 'in_progress') && (
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => updateMessageStatus(message.id, 'resolved')}
                             disabled={updatingStatus.has(message.id)}
+                            className="text-green-600 border-green-600 hover:bg-green-50"
                           >
                             {updatingStatus.has(message.id) ? (
                               <RefreshCw className="h-3 w-3 animate-spin" />
                             ) : (
-                              'Mark Resolved'
+                              <>
+                                <CheckCircle className="h-3 w-3 mr-1" />
+                                Mark Resolved
+                              </>
                             )}
                           </Button>
                         )}

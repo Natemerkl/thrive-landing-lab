@@ -31,6 +31,8 @@ const PaymentManagementTab = () => {
   const [updatingStatus, setUpdatingStatus] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
+  console.log('PaymentManagementTab rendered, payments count:', payments.length);
+
   useEffect(() => {
     fetchPayments();
   }, []);
@@ -38,6 +40,8 @@ const PaymentManagementTab = () => {
   const fetchPayments = async () => {
     try {
       setLoading(true);
+      console.log('Fetching payments...');
+      
       const { data, error } = await supabase
         .from('payments')
         .select('*')
@@ -53,6 +57,7 @@ const PaymentManagementTab = () => {
         return;
       }
 
+      console.log('Payments fetched:', data);
       setPayments(data || []);
     } catch (error) {
       console.error('Error fetching payments:', error);

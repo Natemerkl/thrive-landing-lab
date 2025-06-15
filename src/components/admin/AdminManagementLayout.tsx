@@ -15,6 +15,8 @@ const AdminManagementLayout: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('users');
 
+  console.log('AdminManagementLayout rendered, activeTab:', activeTab);
+
   const handleSignOut = async () => {
     try {
       await signOut();
@@ -22,6 +24,11 @@ const AdminManagementLayout: React.FC = () => {
     } catch (error) {
       console.error('Error signing out:', error);
     }
+  };
+
+  const handleTabChange = (newTab: string) => {
+    console.log('Changing tab to:', newTab);
+    setActiveTab(newTab);
   };
 
   return (
@@ -55,7 +62,7 @@ const AdminManagementLayout: React.FC = () => {
             className={`cursor-pointer hover:shadow-lg transition-shadow border-orange-200 ${
               activeTab === 'users' ? 'bg-orange-100 border-orange-300' : 'bg-orange-50'
             }`}
-            onClick={() => setActiveTab('users')}
+            onClick={() => handleTabChange('users')}
           >
             <CardHeader>
               <CardTitle className="flex items-center text-orange-900">
@@ -72,7 +79,7 @@ const AdminManagementLayout: React.FC = () => {
             className={`cursor-pointer hover:shadow-lg transition-shadow border-purple-200 ${
               activeTab === 'payments' ? 'bg-purple-100 border-purple-300' : 'bg-purple-50'
             }`}
-            onClick={() => setActiveTab('payments')}
+            onClick={() => handleTabChange('payments')}
           >
             <CardHeader>
               <CardTitle className="flex items-center text-purple-900">
@@ -89,7 +96,7 @@ const AdminManagementLayout: React.FC = () => {
             className={`cursor-pointer hover:shadow-lg transition-shadow border-teal-200 ${
               activeTab === 'messages' ? 'bg-teal-100 border-teal-300' : 'bg-teal-50'
             }`}
-            onClick={() => setActiveTab('messages')}
+            onClick={() => handleTabChange('messages')}
           >
             <CardHeader>
               <CardTitle className="flex items-center text-teal-900">
@@ -104,7 +111,7 @@ const AdminManagementLayout: React.FC = () => {
         </div>
 
         {/* Main Content Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="users" className="flex items-center">
               <Users className="mr-2 h-4 w-4" />
