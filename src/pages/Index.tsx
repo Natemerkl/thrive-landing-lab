@@ -18,12 +18,30 @@ const Index = () => {
       <Navigation />
       <HeroSection />
       <TrustLogos />
-      <ServicesSection />
-      <WhyChooseMe />
-      <HowItWorks />
-      <PricingSection />
-      <RecentWorks />
-      <FAQSection />
+      
+      <section id="services">
+        <ServicesSection />
+      </section>
+      
+      <section id="why-choose-me">
+        <WhyChooseMe />
+      </section>
+      
+      <section id="how-it-works">
+        <HowItWorks />
+      </section>
+      
+      <section id="pricing">
+        <PricingSection />
+      </section>
+      
+      <section id="recent-works">
+        <RecentWorks />
+      </section>
+      
+      <section id="faq">
+        <FAQSection />
+      </section>
       
       {/* Newsletter section */}
       <section className="py-16 bg-slate-50">
@@ -32,7 +50,10 @@ const Index = () => {
         </div>
       </section>
       
-      <FinalCTA />
+      <section id="contact">
+        <FinalCTA />
+      </section>
+      
       <Footer />
     </div>
   );
