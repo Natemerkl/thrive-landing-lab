@@ -1,66 +1,41 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
-import ProtectedRoute from "@/components/ProtectedRoute";
-import Index from "./pages/Index";
-import PaymentPage from "./pages/PaymentPage";
-import PaymentVerificationPage from "./pages/PaymentVerificationPage";
-import ProjectChoicePage from "./pages/ProjectChoicePage";
-import AdminDashboard from "./pages/AdminDashboard";
-import AdminManagementPage from "./pages/AdminManagementPage";
-import AuthPage from "./pages/AuthPage";
-import DashboardPage from "./pages/DashboardPage";
-import NotFound from "./pages/NotFound";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from '@/components/ui/toaster';
+import { AuthProvider } from '@/contexts/AuthContext';
+import Index from '@/pages/Index';
+import AuthPage from '@/pages/AuthPage';
+import DashboardPage from '@/pages/DashboardPage';
+import ProjectChoicePage from '@/pages/ProjectChoicePage';
+import PaymentPage from '@/pages/PaymentPage';
+import PaymentVerificationPage from '@/pages/PaymentVerificationPage';
+import ProjectTrackingPage from '@/pages/ProjectTrackingPage';
+import AdminDashboard from '@/pages/AdminDashboard';
+import AdminManagementPage from '@/pages/AdminManagementPage';
+import NotFound from '@/pages/NotFound';
+import './App.css';
 
-const queryClient = new QueryClient();
-
-const App = () => {
-  console.log('App component rendered');
-  
+function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <AuthProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<AuthPage />} />
-              <Route path="/dashboard" element={
-                <ProtectedRoute>
-                  <DashboardPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/choose-project" element={<ProjectChoicePage />} />
-              <Route path="/payment" element={<PaymentPage />} />
-              <Route path="/payment-verification" element={
-                <ProtectedRoute>
-                  <PaymentVerificationPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/admin" element={
-                <ProtectedRoute requireAdmin={true}>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/admin/management" element={
-                <ProtectedRoute requireAdmin={true}>
-                  <AdminManagementPage />
-                </ProtectedRoute>
-              } />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </AuthProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <AuthProvider>
+      <Router>
+        <div className="App">
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/choose-project" element={<ProjectChoicePage />} />
+            <Route path="/payment" element={<PaymentPage />} />
+            <Route path="/payment-verification" element={<PaymentVerificationPage />} />
+            <Route path="/project-tracking" element={<ProjectTrackingPage />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/management" element={<AdminManagementPage />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <Toaster />
+        </div>
+      </Router>
+    </AuthProvider>
   );
-};
+}
 
 export default App;

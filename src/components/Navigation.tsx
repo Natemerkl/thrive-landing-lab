@@ -1,125 +1,259 @@
 
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
-import { Menu, X, Code } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { Menu, X, Code, LogOut, User, FolderOpen } from 'lucide-react';
 
 const Navigation = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const { user } = useAuth();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const { user, signOut, userRole } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
-      setIsOpen(false);
+      setIsMenuOpen(false);
     }
   };
 
-  const navigationItems = [
-    { label: 'Services', sectionId: 'services' },
-    { label: 'Why Choose Me', sectionId: 'why-choose-me' },
-    { label: 'Process', sectionId: 'how-it-works' },
-    { label: 'Pricing', sectionId: 'pricing' },
-    { label: 'Recent Works', sectionId: 'recent-works' },
-    { label: 'FAQ', sectionId: 'faq' },
-    { label: 'Contact', sectionId: 'contact' }
-  ];
-
   return (
-    <nav className="bg-white/95 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-50 shadow-sm">
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+      isScrolled 
+        ? 'bg-white/95 backdrop-blur-xl shadow-lg border-b border-slate-200' 
+        : 'bg-transparent'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
-          <div className="flex items-center space-x-3 group select-none cursor-pointer">
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-2.5 rounded-xl shadow-md transition-all duration-300 group-hover:shadow-lg group-hover:scale-105">
-              <Code className="h-6 w-6 text-white" />
+          <div 
+            className="flex items-center space-x-3 cursor-pointer group select-none"
+            onClick={() => navigate('/')}
+          >
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-2.5 rounded-xl shadow-lg transition-transform duration-700 group-hover:rotate-[16deg] group-hover:scale-110">
+              <Code className="h-7 w-7 text-white transition-transform duration-500 group-hover:animate-spin-slow" />
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent">
+            <span className="text-2xl font-extrabold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent tracking-tight">
               MERKL.DEV
             </span>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-1">
-            {navigationItems.map((item) => (
-              <button
-                key={item.sectionId}
-                onClick={() => scrollToSection(item.sectionId)}
-                className="px-4 py-2 rounded-lg text-slate-600 hover:text-blue-600 hover:bg-blue-50/80 font-medium transition-all duration-200 text-sm"
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
+          <div className="hidden md:flex items-center space-x-8">
+            <button
+              onClick={() => scrollToSection('services')}
+              className="text-slate-700 hover:text-blue-600 font-medium transition-colors"
+            >
+              Services
+            </button>
+            <button
+              onClick={() => scrollToSection('work')}
+              className="text-slate-700 hover:text-blue-600 font-medium transition-colors"
+            >
+              Work
+            </button>
+            <button
+              onClick={() => scrollToSection('pricing')}
+              className="text-slate-700 hover:text-blue-600 font-medium transition-colors"
+            >
+              Pricing
+            </button>
+            <button
+              onClick={() => scrollToSection('contact')}
+              className="text-slate-700 hover:text-blue-600 font-medium transition-colors"
+            >
+              Contact
+            </button>
 
-          {/* CTA Button */}
-          <div className="hidden lg:flex items-center space-x-4">
+            {/* User Authentication */}
             {user ? (
-              <Button
-                onClick={() => window.location.href = '/dashboard'}
-                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md font-semibold transition-all duration-200 hover:shadow-lg hover:scale-105"
-              >
-                Dashboard
-              </Button>
+              <div className="flex items-center space-x-4">
+                {user && (
+                  <Button
+                    onClick={() => navigate('/project-tracking')}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center rounded-xl border-blue-200 text-blue-700 hover:bg-blue-50"
+                  >
+                    <FolderOpen className="h-4 w-4 mr-2" />
+                    Projects
+                  </Button>
+                )}
+                {userRole === 'admin' && (
+                  <Button
+                    onClick={() => navigate('/admin')}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center rounded-xl"
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Admin
+                  </Button>
+                )}
+                <Button
+                  onClick={handleSignOut}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center rounded-xl"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </Button>
+              </div>
             ) : (
-              <Button
-                onClick={() => window.location.href = '/auth'}
-                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md font-semibold transition-all duration-200 hover:shadow-lg hover:scale-105"
-              >
-                Get Started
-              </Button>
+              <div className="flex items-center space-x-3">
+                <Button
+                  onClick={() => navigate('/auth')}
+                  variant="outline"
+                  className="rounded-xl"
+                >
+                  Sign In
+                </Button>
+                <Button
+                  onClick={() => navigate('/choose-project')}
+                  className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-2 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 shadow-lg"
+                >
+                  Start Project
+                </Button>
+              </div>
             )}
           </div>
 
           {/* Mobile menu button */}
-          <div className="lg:hidden">
+          <div className="md:hidden">
             <Button
               variant="ghost"
-              size="icon"
-              onClick={() => setIsOpen(!isOpen)}
-              className="rounded-xl p-2 hover:bg-slate-100 transition-colors"
+              size="sm"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="text-slate-700"
             >
-              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
-        {isOpen && (
-          <div className="lg:hidden pb-4 border-t border-slate-200 mt-2 pt-4 bg-white/95 backdrop-blur-md rounded-b-2xl shadow-lg animate-fade-in">
-            <div className="flex flex-col space-y-1">
-              {navigationItems.map((item) => (
-                <button
-                  key={item.sectionId}
-                  onClick={() => scrollToSection(item.sectionId)}
-                  className="w-full text-left px-4 py-3 text-slate-600 hover:text-blue-600 hover:bg-blue-50/80 font-medium transition-all duration-200 rounded-lg"
-                >
-                  {item.label}
-                </button>
-              ))}
-              
-              <div className="pt-2 mt-2 border-t border-slate-200">
-                {user ? (
-                  <Button 
-                    onClick={() => window.location.href = '/dashboard'}
-                    className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md font-semibold transition-all duration-200"
+        {isMenuOpen && (
+          <div className="md:hidden bg-white/95 backdrop-blur-xl border-t border-slate-200 py-4">
+            <div className="flex flex-col space-y-4">
+              <button
+                onClick={() => scrollToSection('services')}
+                className="text-left text-slate-700 hover:text-blue-600 font-medium transition-colors"
+              >
+                Services
+              </button>
+              <button
+                onClick={() => scrollToSection('work')}
+                className="text-left text-slate-700 hover:text-blue-600 font-medium transition-colors"
+              >
+                Work
+              </button>
+              <button
+                onClick={() => scrollToSection('pricing')}
+                className="text-left text-slate-700 hover:text-blue-600 font-medium transition-colors"
+              >
+                Pricing
+              </button>
+              <button
+                onClick={() => scrollToSection('contact')}
+                className="text-left text-slate-700 hover:text-blue-600 font-medium transition-colors"
+              >
+                Contact
+              </button>
+
+              {user ? (
+                <div className="flex flex-col space-y-3 pt-4 border-t border-slate-200">
+                  <Button
+                    onClick={() => {
+                      navigate('/project-tracking');
+                      setIsMenuOpen(false);
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center justify-start rounded-xl"
                   >
-                    Dashboard
+                    <FolderOpen className="h-4 w-4 mr-2" />
+                    Projects
                   </Button>
-                ) : (
-                  <Button 
-                    onClick={() => window.location.href = '/auth'}
-                    className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md font-semibold transition-all duration-200"
+                  {userRole === 'admin' && (
+                    <Button
+                      onClick={() => {
+                        navigate('/admin');
+                        setIsMenuOpen(false);
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center justify-start rounded-xl"
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      Admin
+                    </Button>
+                  )}
+                  <Button
+                    onClick={handleSignOut}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center justify-start rounded-xl"
                   >
-                    Get Started
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
                   </Button>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div className="flex flex-col space-y-3 pt-4 border-t border-slate-200">
+                  <Button
+                    onClick={() => {
+                      navigate('/auth');
+                      setIsMenuOpen(false);
+                    }}
+                    variant="outline"
+                    className="rounded-xl"
+                  >
+                    Sign In
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      navigate('/choose-project');
+                      setIsMenuOpen(false);
+                    }}
+                    className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl"
+                  >
+                    Start Project
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         )}
       </div>
+
+      {/* Logo Animation Styles */}
+      <style>
+        {`
+          @keyframes spin-slow { 
+            0% { transform: rotate(0deg);}
+            100% { transform: rotate(360deg);}
+          }
+          .group:hover .animate-spin-slow {
+            animation: spin-slow 1.2s linear;
+          }
+        `}
+      </style>
     </nav>
   );
 };

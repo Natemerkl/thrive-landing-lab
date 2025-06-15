@@ -1,30 +1,39 @@
 
 import React from 'react';
-import { TabsContent } from '@/components/ui/tabs';
-import AdminOverview from './AdminOverview';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ContactMessagesTab from './ContactMessagesTab';
+import PaymentManagementTab from './PaymentManagementTab';
 import UserManagementTab from './UserManagementTab';
-import ContactMessages from './ContactMessages';
-import PaymentManagement from './PaymentManagement';
+import ProjectManagement from './ProjectManagement';
 
-const AdminTabsContent: React.FC = () => {
+const AdminTabsContent = () => {
   return (
-    <>
+    <Tabs defaultValue="overview" className="space-y-4">
+      <TabsList className="grid w-full grid-cols-4">
+        <TabsTrigger value="overview">Overview</TabsTrigger>
+        <TabsTrigger value="projects">Projects</TabsTrigger>
+        <TabsTrigger value="payments">Payments</TabsTrigger>
+        <TabsTrigger value="messages">Messages</TabsTrigger>
+      </TabsList>
+
       <TabsContent value="overview" className="space-y-4">
-        <AdminOverview />
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {/* Overview cards can be added here */}
+        </div>
       </TabsContent>
 
-      <TabsContent value="users" className="space-y-4">
-        <UserManagementTab />
-      </TabsContent>
-
-      <TabsContent value="messages" className="space-y-4">
-        <ContactMessages />
+      <TabsContent value="projects" className="space-y-4">
+        <ProjectManagement />
       </TabsContent>
 
       <TabsContent value="payments" className="space-y-4">
-        <PaymentManagement />
+        <PaymentManagementTab />
       </TabsContent>
-    </>
+
+      <TabsContent value="messages" className="space-y-4">
+        <ContactMessagesTab />
+      </TabsContent>
+    </Tabs>
   );
 };
 
