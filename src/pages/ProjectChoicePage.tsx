@@ -1,6 +1,5 @@
-
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -20,7 +19,16 @@ interface ProjectFeature {
 
 const ProjectChoicePage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>(['landing-page']); // Landing page is pre-selected
+
+  // Handle pre-selected features from pricing cards
+  useEffect(() => {
+    const preSelectedFeatures = location.state?.preSelectedFeatures;
+    if (preSelectedFeatures && preSelectedFeatures.length > 0) {
+      setSelectedFeatures(preSelectedFeatures);
+    }
+  }, [location.state]);
 
   const features: ProjectFeature[] = [
     // Essential Features (Cheap - Good for landing pages)

@@ -29,8 +29,27 @@ const PricingSection = () => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleStartProject = () => {
-    navigate('/choose-project');
+  const handleStartProject = (planId: string) => {
+    // Define feature mappings for each plan
+    const planFeatures = {
+      starter: ['landing-page', 'responsive-design', 'seo-basic', 'contact-form', 'google-analytics'],
+      business: [
+        'landing-page', 'responsive-design', 'seo-basic', 'contact-form', 'google-analytics',
+        'multi-page', 'blog-cms', 'gallery-portfolio', 'social-integration'
+      ],
+      enterprise: [
+        'landing-page', 'responsive-design', 'seo-basic', 'contact-form', 'google-analytics',
+        'multi-page', 'blog-cms', 'gallery-portfolio', 'social-integration',
+        'user-registration', 'payment-automatic', 'admin-panel', 'database-integration',
+        'api-integrations', 'advanced-seo'
+      ]
+    };
+
+    navigate('/choose-project', { 
+      state: { 
+        preSelectedFeatures: planFeatures[planId as keyof typeof planFeatures] || []
+      } 
+    });
   };
 
   const plans = [
@@ -156,7 +175,7 @@ const PricingSection = () => {
                 </ul>
 
                 <Button 
-                  onClick={handleStartProject}
+                  onClick={() => handleStartProject(plan.id)}
                   className={`w-full py-3 font-medium transition-all duration-300 ${
                     plan.highlighted
                       ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white'
