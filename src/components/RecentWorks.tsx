@@ -28,7 +28,7 @@ const RecentWorks = () => {
       id: 'stocksyncai',
       title: 'StockSyncAI Dashboard',
       description: 'AI-powered inventory management system with real-time analytics and automated stock tracking.',
-      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop',
+      image: '/lovable-uploads/8b51cefa-7b54-4688-895a-ea6c129ec461.png',
       url: 'https://stocksyncai.pro.et/',
       tags: ['React', 'AI', 'Dashboard', 'Analytics'],
       featured: true
