@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -52,11 +51,11 @@ interface Project {
     currency: string;
     plan_id: string;
     payer_email: string;
-  };
+  } | null;
   profile?: {
     full_name: string | null;
     email: string | null;
-  };
+  } | null;
   project_features: ProjectFeature[];
 }
 
@@ -78,14 +77,14 @@ const ProjectManagement = () => {
         .from('projects')
         .select(`
           *,
-          payment:payments(amount, currency, plan_id, payer_email),
-          profile:profiles(full_name, email),
+          payments!projects_payment_id_fkey(amount, currency, plan_id, payer_email),
+          profiles!projects_user_id_fkey(full_name, email),
           project_features(
             id,
             quantity,
             custom_price,
             notes,
-            feature:features(
+            features(
               id,
               name,
               description,
@@ -106,7 +105,18 @@ const ProjectManagement = () => {
         return;
       }
 
-      setProjects(data || []);
+      // Transform the data to match our interface
+      const transformedProjects = (data || []).map(project => ({
+        ...project,
+        payment: project.payments?.[0] || null,
+        profile: project.profiles?.[0] || null,
+        project_features: (project.project_features || []).map(pf => ({
+          ...pf,
+          feature: pf.features
+        }))
+      }));
+
+      setProjects(transformedProjects);
     } catch (error) {
       console.error('Error fetching projects:', error);
       toast({
@@ -296,7 +306,7 @@ const ProjectManagement = () => {
                   {/* Client Information */}
                   <div className="flex items-center mt-1 text-sm text-gray-600">
                     <User className="h-4 w-4 mr-1" />
-                    {project.profile?.full_name || 'Unknown Client'} ({project.profile?.email || project.payment?.payer_email})
+                    {project.profile?.full_name || 'Unknown Client'} ({project.profile?.email || project.payment?.payer_email || 'No email'})
                   </div>
                   
                   {/* Payment Information */}
