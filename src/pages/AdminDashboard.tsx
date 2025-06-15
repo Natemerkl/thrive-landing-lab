@@ -7,8 +7,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, Check, X, ArrowLeft, Users, CreditCard, FileText, MessageSquare, Mail } from 'lucide-react';
+import { Eye, Check, X, ArrowLeft, Users, CreditCard, FileText, MessageSquare, Mail, Search, Filter } from 'lucide-react';
+import ContactMessageCard from '@/components/ContactMessageCard';
 
 interface Payment {
   id: string;
@@ -54,8 +56,11 @@ const AdminDashboard = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [billingHistory, setBillingHistory] = useState<BillingHistory[]>([]);
   const [contactInquiries, setContactInquiries] = useState<ContactInquiry[]>([]);
+  const [filteredInquiries, setFilteredInquiries] = useState<ContactInquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [stats, setStats] = useState({
     totalPayments: 0,
     pendingPayments: 0,
@@ -71,6 +76,25 @@ const AdminDashboard = () => {
     fetchContactInquiries();
     calculateStats();
   }, []);
+
+  useEffect(() => {
+    // Filter inquiries based on search term and status
+    let filtered = contactInquiries;
+    
+    if (searchTerm) {
+      filtered = filtered.filter(inquiry => 
+        inquiry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        inquiry.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        inquiry.message.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(inquiry => inquiry.status === statusFilter);
+    }
+    
+    setFilteredInquiries(filtered);
+  }, [contactInquiries, searchTerm, statusFilter]);
 
   const fetchContactInquiries = async () => {
     try {
@@ -355,125 +379,52 @@ const AdminDashboard = () => {
         <TabsContent value="inquiries" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Contact Inquiries</CardTitle>
+              <CardTitle className="flex items-center justify-between">
+                <span>Contact Messages ({filteredInquiries.length})</span>
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search messages..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-9 w-64"
+                    />
+                  </div>
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="px-3 py-2 border border-input bg-background rounded-md text-sm"
+                  >
+                    <option value="all">All Status</option>
+                    <option value="new">New</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                    <option value="closed">Closed</option>
+                  </select>
+                </div>
+              </CardTitle>
               <p className="text-sm text-muted-foreground">
                 Review and manage customer contact messages
               </p>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Phone</TableHead>
-                      <TableHead>Project Type</TableHead>
-                      <TableHead>Budget</TableHead>
-                      <TableHead>Message</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {contactInquiries.map((inquiry) => (
-                      <TableRow key={inquiry.id}>
-                        <TableCell>{formatDate(inquiry.created_at)}</TableCell>
-                        <TableCell className="font-medium">{inquiry.name}</TableCell>
-                        <TableCell>{inquiry.email}</TableCell>
-                        <TableCell>{inquiry.phone || 'N/A'}</TableCell>
-                        <TableCell className="capitalize">{inquiry.project_type || 'N/A'}</TableCell>
-                        <TableCell>{inquiry.budget_range || 'N/A'}</TableCell>
-                        <TableCell className="max-w-xs">
-                          <div className="truncate" title={inquiry.message}>
-                            {inquiry.message.length > 50 
-                              ? `${inquiry.message.substring(0, 50)}...` 
-                              : inquiry.message}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={getStatusColor(inquiry.status)}>
-                            {inquiry.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex space-x-2">
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button variant="outline" size="sm">
-                                  <Eye className="h-4 w-4" />
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent className="max-w-2xl">
-                                <DialogHeader>
-                                  <DialogTitle>Contact Inquiry Details</DialogTitle>
-                                </DialogHeader>
-                                <div className="space-y-4">
-                                  <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                      <strong>Name:</strong> {inquiry.name}
-                                    </div>
-                                    <div>
-                                      <strong>Email:</strong> {inquiry.email}
-                                    </div>
-                                    <div>
-                                      <strong>Phone:</strong> {inquiry.phone || 'N/A'}
-                                    </div>
-                                    <div>
-                                      <strong>Project Type:</strong> {inquiry.project_type || 'N/A'}
-                                    </div>
-                                    <div>
-                                      <strong>Budget Range:</strong> {inquiry.budget_range || 'N/A'}
-                                    </div>
-                                    <div>
-                                      <strong>Date:</strong> {formatDate(inquiry.created_at)}
-                                    </div>
-                                  </div>
-                                  <div>
-                                    <strong>Message:</strong>
-                                    <p className="mt-2 p-3 bg-gray-50 rounded">{inquiry.message}</p>
-                                  </div>
-                                </div>
-                              </DialogContent>
-                            </Dialog>
-                            
-                            {inquiry.status === 'new' && (
-                              <Button
-                                size="sm"
-                                onClick={() => updateInquiryStatus(inquiry.id, 'contacted')}
-                                variant="outline"
-                              >
-                                Mark Contacted
-                              </Button>
-                            )}
-                            
-                            {inquiry.status === 'contacted' && (
-                              <Button
-                                size="sm"
-                                onClick={() => updateInquiryStatus(inquiry.id, 'in_progress')}
-                                variant="outline"
-                              >
-                                In Progress
-                              </Button>
-                            )}
-                            
-                            {inquiry.status === 'in_progress' && (
-                              <Button
-                                size="sm"
-                                onClick={() => updateInquiryStatus(inquiry.id, 'completed')}
-                                className="bg-green-600 hover:bg-green-700"
-                              >
-                                Complete
-                              </Button>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+              {filteredInquiries.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  {contactInquiries.length === 0 ? 'No contact messages yet.' : 'No messages match your search criteria.'}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {filteredInquiries.map((inquiry) => (
+                    <ContactMessageCard
+                      key={inquiry.id}
+                      message={inquiry}
+                      onStatusUpdate={updateInquiryStatus}
+                    />
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
