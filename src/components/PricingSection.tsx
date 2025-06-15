@@ -30,7 +30,7 @@ const PricingSection = () => {
   const plans = [
     {
       name: 'Starter Website',
-      price: '25,000 ETB',
+      price: '12,000 ETB',
       description: 'Perfect for small businesses and personal brands',
       features: [
         'Responsive mobile-first design',
@@ -40,6 +40,7 @@ const PricingSection = () => {
         'Social media integration',
         'SSL certificate setup',
         'Performance optimization',
+        'Basic payment integration',
         '1-2 week delivery',
         '30 days free support'
       ],
@@ -47,19 +48,21 @@ const PricingSection = () => {
     },
     {
       name: 'Business Pro',
-      price: '65,000 ETB',
+      price: '47,000 ETB',
       description: 'Ideal for growing businesses and startups',
       features: [
         'Custom web application',
         'User authentication system',
         'Database integration (Supabase)',
         'Admin dashboard panel',
-        'Payment integration (Stripe/PayPal)',
+        'Full payment management system',
+        'Stripe integration with analytics',
         'Email automation setup',
         'Advanced SEO optimization',
         'Blog/CMS functionality',
         'API integrations',
         'Mobile app-like experience',
+        'Multi-currency support (ETB/USD)',
         '2-3 week delivery',
         '60 days free support'
       ],
@@ -73,9 +76,13 @@ const PricingSection = () => {
         'Full-stack application development',
         'Microservices architecture',
         'Advanced backend systems',
-        'Third-party integrations',
+        'Robust payment management system',
+        'Complete financial dashboard',
+        'Automated billing & invoicing',
+        'Payment dispute management',
         'Multi-user role management',
         'Advanced analytics dashboard',
+        'Third-party integrations',
         'Automated testing suite',
         'DevOps & deployment setup',
         'Performance monitoring',
