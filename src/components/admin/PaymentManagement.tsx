@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -70,34 +69,91 @@ const PaymentManagement: React.FC = () => {
     try {
       // Create detailed project description based on plan and payment info
       const planDetails = {
-        'starter': 'Simple Landing Page Package',
-        'business': 'Multi-Page Website Package', 
-        'enterprise': 'Full-Stack Application Package',
-        'custom': 'Custom Project Package'
+        'starter': {
+          title: 'Starter Website Package',
+          description: `Complete starter website package including:
+• Responsive landing page design
+• Contact form integration
+• Basic SEO optimization
+• Mobile-friendly layout
+• Professional design templates`
+        },
+        'business': {
+          title: 'Business Website Package', 
+          description: `Comprehensive business website including:
+• Multi-page responsive website
+• Contact forms and lead generation
+• Advanced SEO optimization
+• Content management system
+• Business-focused features
+• Professional branding integration`
+        },
+        'enterprise': {
+          title: 'Enterprise Application Package',
+          description: `Full-stack enterprise application including:
+• Custom web application development
+• Database design and integration
+• User authentication and authorization
+• Admin dashboard and management tools
+• API development and integrations
+• Advanced functionality and features`
+        },
+        'custom': {
+          title: 'Custom Project Package',
+          description: `Custom development project tailored to client specifications:
+• Personalized feature development
+• Custom functionality implementation
+• Specialized integrations
+• Unique business requirements
+• Tailored user experience`
+        }
       };
 
-      const projectTitle = planDetails[payment.plan_id as keyof typeof planDetails] || payment.plan_id.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
-      
-      const projectDescription = `
-Project Package: ${projectTitle}
-Client Email: ${payment.payer_email}
-Payment Amount: ${payment.amount} ${payment.currency}
-Payment Method: ${payment.payment_method} via ${payment.bank}
-Bank Reference: ${payment.bank_reference}
+      const selectedPlan = planDetails[payment.plan_id as keyof typeof planDetails] || {
+        title: payment.plan_id.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+        description: `Custom project package for ${payment.plan_id}`
+      };
 
-This project was created from verified payment and includes all features selected by the client during checkout.
-${payment.notes ? `\nPayment Notes: ${payment.notes}` : ''}
-      `.trim();
+      const projectDescription = `${selectedPlan.description}
+
+CLIENT INFORMATION:
+• Client: ${payment.payer_email}
+• Payment Amount: ${payment.amount} ${payment.currency}
+• Payment Method: ${payment.payment_method} via ${payment.bank}
+• Bank Reference: ${payment.bank_reference}
+• Package: ${payment.plan_id.toUpperCase()}
+
+PROJECT STATUS:
+This project was automatically created from verified payment and is ready for development initiation.
+
+${payment.notes ? `PAYMENT NOTES:\n${payment.notes}` : ''}`;
+
+      // Check if project already exists for this payment
+      const { data: existingProject, error: checkError } = await supabase
+        .from('projects')
+        .select('id')
+        .eq('payment_id', payment.id)
+        .single();
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        console.error('Error checking existing project:', checkError);
+        throw checkError;
+      }
+
+      if (existingProject) {
+        console.log('Project already exists for this payment');
+        return;
+      }
 
       const { error } = await supabase
         .from('projects')
         .insert({
           user_id: payment.user_id,
           payment_id: payment.id,
-          title: projectTitle,
+          title: selectedPlan.title,
           description: projectDescription,
           status: 'pending',
-          notes: `Auto-created from verified payment ID: ${payment.id}. Ready for admin review and project initiation.`
+          notes: `Auto-created from verified payment ID: ${payment.id}. Package: ${payment.plan_id.toUpperCase()}. Ready for admin review and project initiation.`
         });
 
       if (error) {
@@ -142,7 +198,7 @@ ${payment.notes ? `\nPayment Notes: ${payment.notes}` : ''}
             await createProjectFromPayment(payment);
             toast({
               title: "Success",
-              description: `Payment verified and project created! Check Project Management tab.`,
+              description: `Payment verified and project created successfully! The project is now available in Project Management.`,
             });
           } catch (error) {
             toast({
@@ -270,7 +326,7 @@ ${payment.notes ? `\nPayment Notes: ${payment.notes}` : ''}
                           User ID: {payment.user_id.substring(0, 8)}...
                         </div>
                         <div className="text-sm font-medium text-blue-600">
-                          Package: {payment.plan_id}
+                          Package: {payment.plan_id.toUpperCase()}
                         </div>
                       </div>
                     </TableCell>
