@@ -29,27 +29,15 @@ const PricingSection = () => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleStartProject = (plan: any, isAnnual: boolean = false) => {
-    navigate('/payment', { 
-      state: { 
-        plan: {
-          id: plan.id,
-          name: plan.name,
-          monthly_price: plan.monthly_price,
-          annual_price: plan.annual_price,
-          features: plan.features
-        }, 
-        isAnnual 
-      } 
-    });
+  const handleStartProject = () => {
+    navigate('/choose-project');
   };
 
   const plans = [
     {
       id: 'starter',
-      name: 'Starter Website',
-      monthly_price: 12000,
-      annual_price: 120000,
+      name: 'Simple Landing Page',
+      starting_price: 8000,
       description: 'Perfect for small businesses and personal brands',
       features: [
         'Responsive mobile-first design',
@@ -59,7 +47,6 @@ const PricingSection = () => {
         'Social media integration',
         'SSL certificate setup',
         'Performance optimization',
-        'Basic payment integration',
         '1-2 week delivery',
         '30 days free support'
       ],
@@ -67,23 +54,19 @@ const PricingSection = () => {
     },
     {
       id: 'business',
-      name: 'Business Pro',
-      monthly_price: 47000,
-      annual_price: 470000,
-      description: 'Ideal for growing businesses and startups',
+      name: 'Multi-Page Website',
+      starting_price: 25000,
+      description: 'Ideal for growing businesses with multiple pages',
       features: [
-        'Custom web application',
-        'User authentication system',
-        'Database integration (Supabase)',
-        'Admin dashboard panel',
-        'Full payment management system',
-        'Stripe integration with analytics',
-        'Email automation setup',
+        'Everything in Simple Landing Page',
+        'Multiple pages (3-5 pages)',
+        'Blog/News section',
+        'Image gallery/portfolio',
         'Advanced SEO optimization',
-        'Blog/CMS functionality',
-        'API integrations',
-        'Mobile app-like experience',
-        'Multi-currency support (ETB/USD)',
+        'Social media feeds integration',
+        'Email marketing setup',
+        'Custom contact forms',
+        'Analytics dashboard',
         '2-3 week delivery',
         '60 days free support'
       ],
@@ -91,27 +74,21 @@ const PricingSection = () => {
     },
     {
       id: 'enterprise',
-      name: 'Enterprise Solution',
-      monthly_price: 0,
-      annual_price: 0,
-      price_display: 'Custom Quote',
-      description: 'Complex projects and enterprise solutions',
+      name: 'Full-Stack Application',
+      starting_price: 80000,
+      description: 'Complex web applications with backend',
       features: [
-        'Full-stack application development',
-        'Microservices architecture',
-        'Advanced backend systems',
-        'Robust payment management system',
-        'Complete financial dashboard',
-        'Automated billing & invoicing',
-        'Payment dispute management',
-        'Multi-user role management',
-        'Advanced analytics dashboard',
-        'Third-party integrations',
-        'Automated testing suite',
-        'DevOps & deployment setup',
+        'Everything in Multi-Page Website',
+        'User authentication system',
+        'Database integration',
+        'Admin dashboard panel',
+        'Payment system integration',
+        'API integrations',
+        'Mobile app-like experience',
+        'Advanced security features',
         'Performance monitoring',
-        'Scalable cloud infrastructure',
-        'Timeline varies (4-12 weeks)',
+        'Scalable architecture',
+        '4-8 week delivery',
         '90 days free support'
       ],
       highlighted: false
@@ -119,7 +96,6 @@ const PricingSection = () => {
   ];
 
   const formatCurrency = (amount: number) => {
-    if (amount === 0) return 'Custom Quote';
     return new Intl.NumberFormat('en-ET', {
       style: 'currency',
       currency: 'ETB',
@@ -134,13 +110,12 @@ const PricingSection = () => {
           <h2 className={`text-4xl md:text-5xl font-bold text-slate-800 mb-6 transition-all duration-800 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}>
-            Transparent Pricing in Ethiopian Birr
+            Choose Your Perfect Package
           </h2>
           <p className={`text-xl text-slate-600 max-w-3xl mx-auto transition-all duration-800 delay-200 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}>
-            Professional web development services at Ethiopian-friendly rates. 
-            All projects include revisions, training, and ongoing support.
+            Start simple, or go full-stack. Pick exactly what you need and only pay for what you choose.
           </p>
         </div>
 
@@ -166,8 +141,8 @@ const PricingSection = () => {
               <div className="p-8">
                 <h3 className="text-2xl font-bold text-slate-800 mb-2">{plan.name}</h3>
                 <div className="text-4xl font-bold text-blue-600 mb-4">
-                  {plan.price_display || formatCurrency(plan.monthly_price)}
-                  {!plan.price_display && plan.monthly_price > 0 && <span className="text-lg text-slate-500"> starting</span>}
+                  {formatCurrency(plan.starting_price)}
+                  <span className="text-lg text-slate-500"> starting</span>
                 </div>
                 <p className="text-slate-600 mb-6">{plan.description}</p>
                 
@@ -181,13 +156,7 @@ const PricingSection = () => {
                 </ul>
 
                 <Button 
-                  onClick={() => {
-                    if (plan.monthly_price === 0) {
-                      scrollToSection('contact');
-                    } else {
-                      handleStartProject(plan);
-                    }
-                  }}
+                  onClick={handleStartProject}
                   className={`w-full py-3 font-medium transition-all duration-300 ${
                     plan.highlighted
                       ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white'
@@ -195,7 +164,7 @@ const PricingSection = () => {
                   }`}
                   variant={plan.highlighted ? 'default' : 'outline'}
                 >
-                  {plan.monthly_price === 0 ? 'Get Custom Quote' : 'Start Project'}
+                  Choose Features & Pay
                 </Button>
               </div>
             </div>
@@ -203,8 +172,8 @@ const PricingSection = () => {
         </div>
         
         <div className="text-center mt-12">
-          <p className="text-slate-600 text-lg mb-4">💳 Flexible payment options available</p>
-          <p className="text-slate-500">Payment plans available | Bank transfer accepted | No hidden fees</p>
+          <p className="text-slate-600 text-lg mb-4">💡 Pick exactly what you need</p>
+          <p className="text-slate-500">Customizable pricing • Bank transfer accepted • No hidden fees</p>
         </div>
       </div>
     </section>

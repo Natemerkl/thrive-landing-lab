@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,7 +13,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Copy, Upload, CheckCircle2, AlertTriangle, BanknoteIcon } from 'lucide-react';
+import { Copy, Upload, CheckCircle2, AlertTriangle, BanknoteIcon, ArrowLeft } from 'lucide-react';
 
 // Define a basic schema for the payment form
 const paymentFormSchema = z.object({
@@ -248,9 +247,20 @@ const PaymentPage: React.FC = () => {
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl">
+      <div className="mb-6">
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate(-1)}
+          className="flex items-center text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Project Selection
+        </Button>
+      </div>
+
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold tracking-tight mb-2">
-          Complete Your {selectedPlan.name} Purchase
+          Complete Your {selectedPlan?.name || 'Custom Project'} Purchase
         </h1>
         <p className="text-muted-foreground">
           One-time payment - {formatCurrency(getAmount())}
