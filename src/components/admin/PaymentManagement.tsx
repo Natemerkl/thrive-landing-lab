@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -66,6 +65,34 @@ const PaymentManagement: React.FC = () => {
     }
   };
 
+  const createProjectFromPayment = async (payment: Payment) => {
+    try {
+      // Create project title based on plan_id
+      const projectTitle = `${payment.plan_id.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())} Project`;
+      
+      const { error } = await supabase
+        .from('projects')
+        .insert({
+          user_id: payment.user_id,
+          payment_id: payment.id,
+          title: projectTitle,
+          description: `Project for ${payment.plan_id} plan - ${payment.payer_email}`,
+          status: 'pending',
+          notes: `Auto-created from verified payment. Amount: ${payment.amount} ${payment.currency}`
+        });
+
+      if (error) {
+        console.error('Error creating project:', error);
+        throw error;
+      }
+
+      console.log('Project created successfully for payment:', payment.id);
+    } catch (error) {
+      console.error('Error creating project from payment:', error);
+      throw error;
+    }
+  };
+
   const updatePaymentStatus = async (paymentId: string, newStatus: string) => {
     setUpdatingStatus(prev => new Set(prev).add(paymentId));
     
@@ -88,14 +115,34 @@ const PaymentManagement: React.FC = () => {
         return;
       }
 
+      // If payment is being verified, automatically create a project
+      if (newStatus === 'verified') {
+        const payment = payments.find(p => p.id === paymentId);
+        if (payment) {
+          try {
+            await createProjectFromPayment(payment);
+            toast({
+              title: "Success",
+              description: `Payment verified and project created!`,
+            });
+          } catch (error) {
+            toast({
+              title: "Warning",
+              description: "Payment verified but project creation failed. Create manually.",
+              variant: "destructive",
+            });
+          }
+        }
+      } else {
+        toast({
+          title: "Success",
+          description: `Payment ${newStatus}`,
+        });
+      }
+
       setPayments(prev => prev.map(payment => 
         payment.id === paymentId ? { ...payment, status: newStatus } : payment
       ));
-
-      toast({
-        title: "Success",
-        description: `Payment ${newStatus}`,
-      });
     } catch (error) {
       console.error('Error updating payment status:', error);
       toast({
@@ -173,7 +220,7 @@ const PaymentManagement: React.FC = () => {
           </Button>
         </CardTitle>
         <CardDescription>
-          Review payment screenshots and approve transactions. Total payments: {payments.length}
+          Review payment screenshots and approve transactions. Projects are automatically created when payments are verified. Total payments: {payments.length}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -269,7 +316,7 @@ const PaymentManagement: React.FC = () => {
                               ) : (
                                 <>
                                   <CheckCircle className="h-3 w-3 mr-1" />
-                                  Approve
+                                  Approve & Create Project
                                 </>
                               )}
                             </Button>
