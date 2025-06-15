@@ -66,6 +66,8 @@ const PaymentPage = () => {
     try {
       setSubmitting(true);
 
+      console.log('Starting payment submission with selectedFeatureIds:', selectedFeatureIds);
+
       // Create payment record
       const { data: paymentData, error: paymentError } = await supabase
         .from('payments')
@@ -84,9 +86,14 @@ const PaymentPage = () => {
         .select()
         .single();
 
-      if (paymentError) throw paymentError;
+      if (paymentError) {
+        console.error('Payment creation error:', paymentError);
+        throw paymentError;
+      }
 
-      // Create project with selected features info
+      console.log('Payment created successfully:', paymentData);
+
+      // Create project description
       const projectDescription = `
 PROJECT: ${plan.name}
 
@@ -106,6 +113,7 @@ PROJECT STATUS: Payment submitted and pending verification
 PAYMENT NOTES: Payment verification required before project can begin
       `.trim();
 
+      // Create project
       const { data: projectData, error: projectError } = await supabase
         .from('projects')
         .insert({
@@ -118,24 +126,42 @@ PAYMENT NOTES: Payment verification required before project can begin
         .select()
         .single();
 
-      if (projectError) throw projectError;
+      if (projectError) {
+        console.error('Project creation error:', projectError);
+        throw projectError;
+      }
+
+      console.log('Project created successfully:', projectData);
 
       // Insert selected features into project_features table
-      if (selectedFeatureIds.length > 0) {
+      if (selectedFeatureIds && selectedFeatureIds.length > 0) {
+        console.log('Inserting project features for project:', projectData.id);
+        
         const projectFeatures = selectedFeatureIds.map((featureId: string) => ({
           project_id: projectData.id,
           feature_id: featureId,
           quantity: 1
         }));
 
-        const { error: featuresError } = await supabase
+        console.log('Project features to insert:', projectFeatures);
+
+        const { data: featuresData, error: featuresError } = await supabase
           .from('project_features')
-          .insert(projectFeatures);
+          .insert(projectFeatures)
+          .select();
 
         if (featuresError) {
           console.error('Error inserting project features:', featuresError);
-          // Don't throw here as the main project is created
+          toast({
+            title: "Warning",
+            description: "Project created but features may not be properly recorded. Please contact support.",
+            variant: "destructive",
+          });
+        } else {
+          console.log('Project features inserted successfully:', featuresData);
         }
+      } else {
+        console.log('No features to insert for this project');
       }
 
       toast({
@@ -301,6 +327,11 @@ PAYMENT NOTES: Payment verification required before project can begin
                   <span className="text-gray-700 font-bold">Amount:</span>
                   <span className="text-blue-600">{plan?.monthly_price.toLocaleString()} ETB</span>
                 </div>
+                {selectedFeatureIds && selectedFeatureIds.length > 0 && (
+                  <div className="text-sm text-gray-600">
+                    Selected {selectedFeatureIds.length} feature{selectedFeatureIds.length !== 1 ? 's' : ''}
+                  </div>
+                )}
               </div>
 
               {/* Submit Button */}

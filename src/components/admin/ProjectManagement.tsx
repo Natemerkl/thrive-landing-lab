@@ -73,6 +73,7 @@ const ProjectManagement = () => {
   const fetchProjects = async () => {
     try {
       setLoading(true);
+      console.log('Fetching projects with features...');
       
       // First, fetch projects with project_features and features
       const { data: projectsData, error: projectsError } = await supabase
@@ -105,28 +106,42 @@ const ProjectManagement = () => {
         return;
       }
 
+      console.log('Raw projects data:', projectsData);
+
       // Then fetch additional data separately to avoid complex joins
       const transformedProjects: Project[] = await Promise.all(
         (projectsData || []).map(async (project) => {
+          console.log('Processing project:', project.id, 'with features:', project.project_features);
+          
           // Fetch payment data
           let payment = null;
           if (project.payment_id) {
-            const { data: paymentData } = await supabase
+            const { data: paymentData, error: paymentError } = await supabase
               .from('payments')
               .select('amount, currency, plan_id, payer_email')
               .eq('id', project.payment_id)
               .single();
-            payment = paymentData;
+            
+            if (paymentError) {
+              console.error('Error fetching payment for project', project.id, ':', paymentError);
+            } else {
+              payment = paymentData;
+            }
           }
 
           // Fetch profile data
           let profile = null;
-          const { data: profileData } = await supabase
+          const { data: profileData, error: profileError } = await supabase
             .from('profiles')
             .select('full_name, email')
             .eq('id', project.user_id)
             .single();
-          profile = profileData;
+          
+          if (profileError) {
+            console.error('Error fetching profile for project', project.id, ':', profileError);
+          } else {
+            profile = profileData;
+          }
 
           return {
             ...project,
@@ -140,6 +155,7 @@ const ProjectManagement = () => {
         })
       );
 
+      console.log('Final transformed projects:', transformedProjects);
       setProjects(transformedProjects);
     } catch (error) {
       console.error('Error fetching projects:', error);
@@ -367,7 +383,7 @@ const ProjectManagement = () => {
                 <div className="text-sm text-gray-700 bg-blue-50 p-4 rounded-lg">
                   <h4 className="font-medium text-blue-900 mb-3 flex items-center">
                     <FileText className="h-4 w-4 mr-2" />
-                    Ordered Features & Services:
+                    Ordered Features & Services ({project.project_features.length}):
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {project.project_features.map((projectFeature) => (
@@ -402,6 +418,16 @@ const ProjectManagement = () => {
                       </span>
                     </div>
                   </div>
+                </div>
+              )}
+
+              {/* Show a message if no features are found */}
+              {(!project.project_features || project.project_features.length === 0) && (
+                <div className="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg">
+                  <p className="flex items-center">
+                    <FileText className="h-4 w-4 mr-2" />
+                    No specific features recorded for this project
+                  </p>
                 </div>
               )}
 
