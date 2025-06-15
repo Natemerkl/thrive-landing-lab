@@ -13,7 +13,8 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Copy, Upload, CheckCircle2, AlertTriangle, BanknoteIcon, ArrowLeft, Code } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Copy, Upload, CheckCircle2, AlertTriangle, BanknoteIcon, ArrowLeft, Code, Mail, LogIn } from 'lucide-react';
 
 // Define a basic schema for the payment form
 const paymentFormSchema = z.object({
@@ -61,6 +62,7 @@ const PaymentPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { user, loading } = useAuth();
   const planFromState = location.state?.plan as SubscriptionPlan | undefined;
 
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(planFromState || null);
@@ -69,6 +71,7 @@ const PaymentPage: React.FC = () => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [paymentSuccessful, setPaymentSuccessful] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [showEmailVerificationAlert, setShowEmailVerificationAlert] = useState(false);
 
   const form = useForm<z.infer<typeof paymentFormSchema>>({
     resolver: zodResolver(paymentFormSchema),
@@ -83,7 +86,6 @@ const PaymentPage: React.FC = () => {
     if (planFromState) {
       setSelectedPlan(planFromState);
     } else {
-      // If no plan in state, use a default plan for demo
       setSelectedPlan({
         id: 'starter',
         name: 'Starter Website',
@@ -94,9 +96,21 @@ const PaymentPage: React.FC = () => {
     }
   }, [planFromState]);
 
+  // Redirect to auth if not authenticated (after loading is complete)
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/auth', { 
+        state: { 
+          returnTo: location.pathname,
+          plan: selectedPlan 
+        } 
+      });
+    }
+  }, [user, loading, navigate, location.pathname, selectedPlan]);
+
   const getAmount = () => {
     if (!selectedPlan) return 0;
-    return selectedPlan.monthly_price; // Use monthly_price as the one-time payment amount
+    return selectedPlan.monthly_price;
   };
 
   const copyAccountNumber = (accountNumber: string) => {
@@ -122,11 +136,15 @@ const PaymentPage: React.FC = () => {
   };
 
   const uploadReceipt = async (file: File): Promise<string> => {
+    if (!user) {
+      throw new Error("User must be authenticated to upload receipts");
+    }
+
     setIsUploading(true);
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}.${fileExt}`;
-      const filePath = `receipts/${fileName}`;
+      const filePath = `${user.id}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('receipts')
@@ -147,6 +165,15 @@ const PaymentPage: React.FC = () => {
   };
 
   const onSubmit = async (values: z.infer<typeof paymentFormSchema>) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to submit payment",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!selectedPlan) {
       toast({
         title: "Error",
@@ -162,9 +189,7 @@ const PaymentPage: React.FC = () => {
       const amount = getAmount();
       const file = values.receiptImage[0];
 
-      // Upload receipt image to Supabase Storage
       let fileUrl = "";
-
       if (file) {
         toast({
           title: "Uploading...",
@@ -184,17 +209,17 @@ const PaymentPage: React.FC = () => {
         throw new Error("Receipt image is required");
       }
       
-      // Record the payment in the database
       const { data: paymentData, error: paymentError } = await supabase
         .from("payments")
         .insert({
+          user_id: user.id,
           plan_id: selectedPlan.id,
           amount: amount,
           payment_method: values.bank,
           bank_reference: values.reference,
           receipt_url: fileUrl,
           status: "pending",
-          payer_email: "user@example.com", // This would come from auth in real app
+          payer_email: user.email || "",
           bank: selectedBank?.name || values.bank,
           notes: values.notes
         })
@@ -203,10 +228,10 @@ const PaymentPage: React.FC = () => {
 
       if (paymentError) throw paymentError;
 
-      // Create billing history entry
       const { error: billingError } = await supabase
         .from("billing_history")
         .insert({
+          user_id: user.id,
           payment_id: paymentData.id,
           invoice_number: `INV-${Date.now()}`,
           amount: amount,
@@ -214,12 +239,13 @@ const PaymentPage: React.FC = () => {
           status: 'pending',
           payment_method: selectedBank?.name || values.bank,
           billing_period_start: new Date().toISOString(),
-          billing_period_end: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // 1 year validity
+          billing_period_end: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
         });
 
       if (billingError) throw billingError;
 
       setPaymentSuccessful(true);
+      setShowEmailVerificationAlert(true);
       toast({
         title: "Success!",
         description: "Payment information submitted successfully!",
@@ -236,6 +262,58 @@ const PaymentPage: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+
+  // Show loading while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-slate-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show sign in prompt if not authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex items-center justify-center">
+        <div className="max-w-md mx-auto text-center">
+          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-3xl">
+            <CardHeader className="text-center pb-6">
+              <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <LogIn className="h-10 w-10 text-white" />
+              </div>
+              <CardTitle className="text-2xl font-bold text-slate-800">Sign In Required</CardTitle>
+              <CardDescription className="text-lg text-slate-600">
+                You need to sign in to continue with your payment
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-slate-600">
+                Please sign in or create an account to proceed with your {selectedPlan?.name || 'service'} purchase.
+              </p>
+            </CardContent>
+            <CardFooter className="flex justify-center pt-6">
+              <Button 
+                onClick={() => navigate('/auth', { 
+                  state: { 
+                    returnTo: location.pathname,
+                    plan: selectedPlan 
+                  } 
+                })}
+                className="rounded-xl px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md font-bold transition-transform active:scale-95"
+              >
+                <LogIn className="mr-2 h-5 w-5" />
+                Sign In / Sign Up
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   if (!selectedPlan) {
     return (
@@ -287,6 +365,20 @@ const PaymentPage: React.FC = () => {
             One-time payment - {formatCurrency(getAmount())}
           </p>
         </div>
+
+        {/* Email Verification Alert */}
+        {showEmailVerificationAlert && (
+          <div className="max-w-4xl mx-auto mb-8">
+            <Alert className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 rounded-xl">
+              <Mail className="h-4 w-4 text-blue-600" />
+              <AlertTitle className="text-blue-800">Check Your Email!</AlertTitle>
+              <AlertDescription className="text-blue-700">
+                Please check your inbox and verify your email address to complete your account setup. 
+                <strong> Don't forget to check your spam and trash folders</strong> if you don't see the verification email.
+              </AlertDescription>
+            </Alert>
+          </div>
+        )}
 
         {paymentSuccessful ? (
           <div className="max-w-2xl mx-auto">
