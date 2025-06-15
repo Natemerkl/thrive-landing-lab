@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { LogOut, Settings, Users, CreditCard, Globe, FileText, CheckCircle, MessageSquare } from 'lucide-react';
+import MyProjectsSection from '@/components/MyProjectsSection';
 
 const DashboardPage = () => {
   const { user, userRole, signOut } = useAuth();
@@ -47,6 +48,13 @@ const DashboardPage = () => {
               </CardDescription>
             </CardHeader>
           </Card>
+        )}
+
+        {/* My Projects Section for non-admin users */}
+        {!isAdmin && (
+          <div className="mb-8">
+            <MyProjectsSection />
+          </div>
         )}
 
         {/* Navigation Cards */}
