@@ -1,59 +1,107 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, CreditCard, Building, User, Mail, Phone } from 'lucide-react';
+import { ArrowLeft, CreditCard, Upload } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-const PaymentPage = () => {
+// Define the Bank interface
+interface Bank {
+  id: string;
+  name: string;
+  accountName: string;
+  accountNumber: string;
+}
+
+// Define the SubscriptionPlan interface
+interface SubscriptionPlan {
+  id: string;
+  name: string;
+  monthly_price: number;
+  features?: string[];
+}
+
+// Define the banks array
+const banks: Bank[] = [
+  { id: 'cbe', name: 'Commercial Bank of Ethiopia', accountName: 'Natnael Bereket Yoseph', accountNumber: '1000341531385' },
+  { id: 'awash', name: 'Awash Bank', accountName: 'Natnael Bereket Yoseph', accountNumber: '01301234567890' },
+  { id: 'dashen', name: 'Dashen Bank', accountName: 'Natnael Bereket Yoseph', accountNumber: '5000123456789' },
+  { id: 'abyssinia', name: 'Bank of Abyssinia', accountName: 'Natnael Bereket Yoseph', accountNumber: '8000123456789' },
+  { id: 'telebirr', name: 'Telebirr', accountName: 'Natnael Bereket Yoseph', accountNumber: '+251998113131' },
+];
+
+// Payment form schema
+const paymentFormSchema = z.object({
+  bank: z.string().min(1, 'Please select a bank'),
+  fullName: z.string().min(1, 'Full name is required'),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().min(1, 'Phone number is required'),
+  companyName: z.string().optional(),
+  bankReference: z.string().min(1, 'Bank reference number is required'),
+  additionalInfo: z.string().optional(),
+});
+
+const PaymentPage: React.FC = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
   const { toast } = useToast();
   
   const plan = location.state?.plan;
   const selectedFeatureIds = location.state?.selectedFeatureIds || [];
   
-  const [paymentMethod, setPaymentMethod] = useState('credit_card');
-  const [selectedBank, setSelectedBank] = useState('');
-  const [bankReference, setBankReference] = useState('');
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    companyName: '',
-    additionalInfo: '',
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(plan || null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAnnual, setIsAnnual] = useState(location.state?.isAnnual || false);
+  const [showYearlyPayment, setShowYearlyPayment] = useState(location.state?.isAnnual || false);
+  const [selectedBank, setSelectedBank] = useState<Bank | null>(banks[0]);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [paymentSuccessful, setPaymentSuccessful] = useState(false);
+
+  const form = useForm<z.infer<typeof paymentFormSchema>>({
+    resolver: zodResolver(paymentFormSchema),
+    defaultValues: {
+      bank: banks[0].id,
+      fullName: '',
+      email: user?.email || '',
+      phone: '',
+      companyName: '',
+      bankReference: '',
+      additionalInfo: '',
+    },
   });
-  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (user) {
-      setFormData(prev => ({
-        ...prev,
-        email: user.email || '',
-      }));
+      form.setValue('email', user.email || '');
     }
-  }, [user]);
+  }, [user, form]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
+  const handleBankChange = (bankId: string) => {
+    const bank = banks.find(b => b.id === bankId);
+    setSelectedBank(bank || null);
+    form.setValue('bank', bankId);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setUploadedFile(file);
+    }
+  };
+
+  const handleSubmit = async (data: z.infer<typeof paymentFormSchema>) => {
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -65,7 +113,7 @@ const PaymentPage = () => {
     }
 
     try {
-      setSubmitting(true);
+      setIsSubmitting(true);
 
       console.log('Starting payment submission with selectedFeatureIds:', selectedFeatureIds);
 
@@ -77,12 +125,12 @@ const PaymentPage = () => {
           amount: plan.monthly_price,
           currency: 'ETB',
           plan_id: plan.id,
-          payment_method: paymentMethod,
-          bank: paymentMethod === 'bank_transfer' ? selectedBank : '',
-          bank_reference: bankReference,
-          payer_email: formData.email,
+          payment_method: 'bank_transfer',
+          bank: selectedBank?.name || '',
+          bank_reference: data.bankReference,
+          payer_email: data.email,
           status: 'pending',
-          notes: `Project: ${plan.name}${formData.additionalInfo ? `. Additional info: ${formData.additionalInfo}` : ''}`
+          notes: `Project: ${plan.name}${data.additionalInfo ? `. Additional info: ${data.additionalInfo}` : ''}`
         })
         .select()
         .single();
@@ -102,13 +150,13 @@ SELECTED FEATURES:
 ${plan.features ? plan.features.map((feature: string) => `• ${feature}`).join('\n') : 'Custom project features'}
 
 CLIENT INFORMATION:
-• Client: ${formData.fullName}
-• Email: ${formData.email}
-• Phone: ${formData.phone}
+• Client: ${data.fullName}
+• Email: ${data.email}
+• Phone: ${data.phone}
 • Payment Amount: ${plan.monthly_price.toLocaleString()} ETB
-• Payment Method: ${paymentMethod === 'bank_transfer' ? `Bank Transfer (${selectedBank})` : paymentMethod}
-• Bank Reference: ${bankReference}
-${formData.additionalInfo ? `• Additional Info: ${formData.additionalInfo}` : ''}
+• Payment Method: Bank Transfer (${selectedBank?.name})
+• Bank Reference: ${data.bankReference}
+${data.additionalInfo ? `• Additional Info: ${data.additionalInfo}` : ''}
 
 PROJECT STATUS: Payment submitted and pending verification
 PAYMENT NOTES: Payment verification required before project can begin
@@ -187,7 +235,7 @@ PAYMENT NOTES: Payment verification required before project can begin
         variant: "destructive",
       });
     } finally {
-      setSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -201,65 +249,57 @@ PAYMENT NOTES: Payment verification required before project can begin
             <CardDescription>Enter your details below to complete your order</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
               {/* Back Button */}
               <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Project Choice
               </Button>
 
-              {/* Payment Method Selection */}
+              {/* Bank Selection */}
               <div>
-                <Label className="block text-gray-700 text-sm font-bold mb-2">Payment Method</Label>
-                <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select payment method" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="credit_card">Credit Card</SelectItem>
-                    <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label className="block text-gray-700 text-sm font-bold mb-2">Select Bank</Label>
+                <RadioGroup value={form.watch('bank')} onValueChange={handleBankChange}>
+                  {banks.map((bank) => (
+                    <div key={bank.id} className="flex items-center space-x-2 p-3 border rounded-lg">
+                      <RadioGroupItem value={bank.id} id={bank.id} />
+                      <Label htmlFor={bank.id} className="flex-1 cursor-pointer">
+                        <div className="font-medium">{bank.name}</div>
+                        <div className="text-sm text-gray-600">
+                          {bank.accountName} - {bank.accountNumber}
+                        </div>
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
               </div>
 
-              {/* Bank Transfer Details (Conditional) */}
-              {paymentMethod === 'bank_transfer' && (
-                <div className="space-y-4">
-                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                    <h3 className="font-semibold text-blue-900 mb-2">Bank Transfer Details</h3>
-                    <div className="space-y-1 text-sm text-blue-800">
-                      <p><strong>Bank Name:</strong> Commercial Bank of Ethiopia</p>
-                      <p><strong>Account Name:</strong> Natnael Bereket Yoseph</p>
-                      <p><strong>Account Number:</strong> 100341531385</p>
-                    </div>
-                  </div>
-                  <div>
-                    <Label className="block text-gray-700 text-sm font-bold mb-2">Select Bank</Label>
-                    <Select value={selectedBank} onValueChange={setSelectedBank}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select bank" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="CBE">Commercial Bank of Ethiopia (CBE)</SelectItem>
-                        <SelectItem value="BOA">Bank of Abyssinia (BOA)</SelectItem>
-                        <SelectItem value="Dashen">Dashen Bank</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="bankReference" className="block text-gray-700 text-sm font-bold mb-2">Bank Reference Number</Label>
-                    <Input
-                      type="text"
-                      id="bankReference"
-                      name="bankReference"
-                      placeholder="Enter bank reference number"
-                      value={bankReference}
-                      onChange={(e) => setBankReference(e.target.value)}
-                      required
-                    />
+              {/* Bank Transfer Details */}
+              {selectedBank && (
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <h3 className="font-semibold text-blue-900 mb-2">Bank Transfer Details</h3>
+                  <div className="space-y-1 text-sm text-blue-800">
+                    <p><strong>Bank Name:</strong> {selectedBank.name}</p>
+                    <p><strong>Account Name:</strong> {selectedBank.accountName}</p>
+                    <p><strong>Account Number:</strong> {selectedBank.accountNumber}</p>
                   </div>
                 </div>
               )}
+
+              {/* Bank Reference Number */}
+              <div>
+                <Label htmlFor="bankReference" className="block text-gray-700 text-sm font-bold mb-2">Bank Reference Number</Label>
+                <Input
+                  type="text"
+                  id="bankReference"
+                  placeholder="Enter bank reference number"
+                  {...form.register('bankReference')}
+                  required
+                />
+                {form.formState.errors.bankReference && (
+                  <p className="text-red-500 text-sm mt-1">{form.formState.errors.bankReference.message}</p>
+                )}
+              </div>
 
               <Separator />
 
@@ -269,45 +309,50 @@ PAYMENT NOTES: Payment verification required before project can begin
                 <Input
                   type="text"
                   id="fullName"
-                  name="fullName"
                   placeholder="Enter your full name"
-                  value={formData.fullName}
-                  onChange={handleInputChange}
+                  {...form.register('fullName')}
                   required
                 />
+                {form.formState.errors.fullName && (
+                  <p className="text-red-500 text-sm mt-1">{form.formState.errors.fullName.message}</p>
+                )}
               </div>
+              
               <div>
                 <Label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">Email Address</Label>
                 <Input
                   type="email"
                   id="email"
-                  name="email"
                   placeholder="Enter your email address"
-                  value={formData.email}
-                  onChange={handleInputChange}
+                  {...form.register('email')}
                   required
                 />
+                {form.formState.errors.email && (
+                  <p className="text-red-500 text-sm mt-1">{form.formState.errors.email.message}</p>
+                )}
               </div>
+              
               <div>
                 <Label htmlFor="phone" className="block text-gray-700 text-sm font-bold mb-2">Phone Number</Label>
                 <Input
                   type="tel"
                   id="phone"
-                  name="phone"
                   placeholder="Enter your phone number"
-                  value={formData.phone}
-                  onChange={handleInputChange}
+                  {...form.register('phone')}
+                  required
                 />
+                {form.formState.errors.phone && (
+                  <p className="text-red-500 text-sm mt-1">{form.formState.errors.phone.message}</p>
+                )}
               </div>
+              
               <div>
                 <Label htmlFor="companyName" className="block text-gray-700 text-sm font-bold mb-2">Company Name (Optional)</Label>
                 <Input
                   type="text"
                   id="companyName"
-                  name="companyName"
                   placeholder="Enter your company name"
-                  value={formData.companyName}
-                  onChange={handleInputChange}
+                  {...form.register('companyName')}
                 />
               </div>
 
@@ -316,11 +361,9 @@ PAYMENT NOTES: Payment verification required before project can begin
                 <Label htmlFor="additionalInfo" className="block text-gray-700 text-sm font-bold mb-2">Additional Information</Label>
                 <Textarea
                   id="additionalInfo"
-                  name="additionalInfo"
                   placeholder="Any additional details about your project?"
                   rows={3}
-                  value={formData.additionalInfo}
-                  onChange={handleInputChange}
+                  {...form.register('additionalInfo')}
                 />
               </div>
 
@@ -344,8 +387,8 @@ PAYMENT NOTES: Payment verification required before project can begin
               </div>
 
               {/* Submit Button */}
-              <Button disabled={submitting} className="w-full">
-                {submitting ? (
+              <Button disabled={isSubmitting} className="w-full">
+                {isSubmitting ? (
                   <>
                     Submitting...
                     <svg className="animate-spin h-5 w-5 ml-2" viewBox="0 0 24 24">
