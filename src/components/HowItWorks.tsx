@@ -1,5 +1,6 @@
 
 import { useEffect, useState, useRef } from 'react';
+import { Target, Wrench, Rocket } from 'lucide-react';
 
 const HowItWorks = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -27,19 +28,22 @@ const HowItWorks = () => {
       number: 1,
       title: 'Discovery Call',
       description: 'We discuss your vision, goals, and requirements to create the perfect roadmap.',
-      icon: '🎯'
+      icon: Target,
+      color: 'text-blue-500'
     },
     {
       number: 2,
       title: 'Design & Build',
       description: 'I create and develop your solution with regular updates and your feedback.',
-      icon: '🛠️'
+      icon: Wrench,
+      color: 'text-purple-500'
     },
     {
       number: 3,
       title: 'Launch & Scale',
       description: 'Deploy your project with SEO optimization, documentation, and ongoing support.',
-      icon: '🚀'
+      icon: Rocket,
+      color: 'text-green-500'
     }
   ];
 
@@ -72,7 +76,9 @@ const HowItWorks = () => {
                 <div className="w-20 h-20 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4 shadow-lg">
                   {step.number}
                 </div>
-                <div className="text-4xl">{step.icon}</div>
+                <div className={`w-12 h-12 mx-auto ${step.color}`}>
+                  <step.icon size={48} strokeWidth={1.5} />
+                </div>
               </div>
               
               <h3 className="text-2xl font-bold text-slate-800 mb-4">{step.title}</h3>

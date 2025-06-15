@@ -1,5 +1,6 @@
 
 import { useEffect, useState, useRef } from 'react';
+import { Palette, Code, CreditCard, Zap, Shield, BarChart3 } from 'lucide-react';
 
 const ServicesSection = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -28,40 +29,46 @@ const ServicesSection = () => {
 
   const services = [
     {
-      icon: '🎨',
+      icon: Palette,
       title: 'Custom Web Design',
       description: 'Beautiful, responsive designs that convert visitors into customers. Modern UI/UX with Ethiopian market insights.',
-      features: ['Mobile-first responsive design', 'Brand identity integration', 'User experience optimization']
+      features: ['Mobile-first responsive design', 'Brand identity integration', 'User experience optimization'],
+      color: 'text-pink-500'
     },
     {
-      icon: '💻',
+      icon: Code,
       title: 'Full-Stack Development',
       description: 'Complete web applications with React, Next.js, and Supabase. Scalable solutions for growing businesses.',
-      features: ['React & Next.js development', 'Database design & management', 'API development & integration']
+      features: ['React & Next.js development', 'Database design & management', 'API development & integration'],
+      color: 'text-blue-500'
     },
     {
-      icon: '💳',
+      icon: CreditCard,
       title: 'Payment Management System',
       description: 'Complete payment processing solution with Stripe integration, subscription management, and financial analytics.',
-      features: ['Stripe payment gateway integration', 'Subscription & recurring billing', 'Payment analytics dashboard', 'Multi-currency support (ETB/USD)', 'Automated invoicing & receipts', 'Payment dispute management']
+      features: ['Stripe payment gateway integration', 'Subscription & recurring billing', 'Payment analytics dashboard', 'Multi-currency support (ETB/USD)', 'Automated invoicing & receipts', 'Payment dispute management'],
+      color: 'text-purple-500'
     },
     {
-      icon: '⚡',
+      icon: Zap,
       title: 'Performance Optimization',
       description: 'Lightning-fast websites optimized for Ethiopian internet speeds. SEO-ready for Google ranking.',
-      features: ['Core Web Vitals optimization', 'SEO implementation', 'Speed & performance tuning']
+      features: ['Core Web Vitals optimization', 'SEO implementation', 'Speed & performance tuning'],
+      color: 'text-yellow-500'
     },
     {
-      icon: '🔒',
+      icon: Shield,
       title: 'Authentication & Security',
       description: 'Secure user authentication, role management, and data protection for your applications.',
-      features: ['User authentication system', 'Role-based access control', 'Data encryption & security']
+      features: ['User authentication system', 'Role-based access control', 'Data encryption & security'],
+      color: 'text-green-500'
     },
     {
-      icon: '📊',
+      icon: BarChart3,
       title: 'Analytics & Insights',
       description: 'Comprehensive analytics dashboard to track your business metrics and user behavior.',
-      features: ['Google Analytics integration', 'Custom dashboard creation', 'Business intelligence reports']
+      features: ['Google Analytics integration', 'Custom dashboard creation', 'Business intelligence reports'],
+      color: 'text-indigo-500'
     }
   ];
 
@@ -91,7 +98,9 @@ const ServicesSection = () => {
               }`}
               style={{ transitionDelay: `${(index + 1) * 150}ms` }}
             >
-              <div className="text-4xl mb-4">{service.icon}</div>
+              <div className={`w-12 h-12 ${service.color} mb-4`}>
+                <service.icon size={48} strokeWidth={1.5} />
+              </div>
               <h3 className="text-2xl font-bold text-slate-800 mb-4">{service.title}</h3>
               <p className="text-slate-600 mb-6 leading-relaxed">{service.description}</p>
               

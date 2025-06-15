@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
+import { ArrowRight, Phone } from 'lucide-react';
 
 const HeroSection = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -44,17 +45,19 @@ const HeroSection = () => {
         }`}>
           <Button 
             onClick={() => scrollToSection('services')}
-            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 text-lg rounded-lg font-medium transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
+            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 text-lg rounded-lg font-medium transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center gap-2"
           >
-            🚀 Start Your Project
+            <ArrowRight size={20} />
+            Start Your Project
           </Button>
           
           <Button 
             variant="outline"
             onClick={() => scrollToSection('contact')}
-            className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-8 py-4 text-lg rounded-lg font-medium transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+            className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-8 py-4 text-lg rounded-lg font-medium transition-all duration-300 transform hover:scale-105 hover:shadow-lg flex items-center gap-2"
           >
-            📞 Book Free Call
+            <Phone size={20} />
+            Book Free Call
           </Button>
         </div>
       </div>

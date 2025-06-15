@@ -1,5 +1,6 @@
 
 import { useEffect, useState, useRef } from 'react';
+import { Target, Zap, MessageCircle, Brain } from 'lucide-react';
 
 const WhyChooseMe = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -24,24 +25,28 @@ const WhyChooseMe = () => {
 
   const benefits = [
     {
-      icon: '🎯',
+      icon: Target,
       title: 'Direct Collaboration',
-      description: 'Work directly with me, not a team. Clear communication, personal attention.'
+      description: 'Work directly with me, not a team. Clear communication, personal attention.',
+      color: 'text-blue-500'
     },
     {
-      icon: '⚡',
+      icon: Zap,
       title: 'Fast Turnaround',
-      description: 'No bureaucracy or delays. Most projects completed within 2-4 weeks.'
+      description: 'No bureaucracy or delays. Most projects completed within 2-4 weeks.',
+      color: 'text-yellow-500'
     },
     {
-      icon: '💬',
+      icon: MessageCircle,
       title: 'Clear Communication',
-      description: 'Regular updates, transparent process, and always available for questions.'
+      description: 'Regular updates, transparent process, and always available for questions.',
+      color: 'text-green-500'
     },
     {
-      icon: '🧠',
+      icon: Brain,
       title: 'Strategy + Execution',
-      description: 'Not just development - strategic thinking to grow your business.'
+      description: 'Not just development - strategic thinking to grow your business.',
+      color: 'text-purple-500'
     }
   ];
 
@@ -70,7 +75,9 @@ const WhyChooseMe = () => {
               }`}
               style={{ transitionDelay: `${(index + 1) * 200}ms` }}
             >
-              <div className="text-4xl mb-4 animate-pulse">{benefit.icon}</div>
+              <div className={`w-12 h-12 mx-auto mb-4 ${benefit.color} flex items-center justify-center`}>
+                <benefit.icon size={48} strokeWidth={1.5} />
+              </div>
               <h3 className="text-xl font-bold text-slate-800 mb-4">{benefit.title}</h3>
               <p className="text-slate-600 leading-relaxed">{benefit.description}</p>
             </div>

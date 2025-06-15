@@ -1,5 +1,6 @@
 
 import { useEffect, useState, useRef } from 'react';
+import { Code, Zap, Database, CreditCard, Rocket, Palette, Globe } from 'lucide-react';
 
 const TrustLogos = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -23,14 +24,14 @@ const TrustLogos = () => {
   }, []);
 
   const technologies = [
-    { name: 'React', icon: '⚛️' },
-    { name: 'Next.js', icon: '▲' },
-    { name: 'StocksyncAI', icon: '📈', isCustom: true },
-    { name: 'Supabase', icon: '🗄️' },
-    { name: 'Stripe', icon: '💳' },
-    { name: 'Vercel', icon: '🚀' },
-    { name: 'Tailwind', icon: '🎨' },
-    { name: 'Node.js', icon: '🟢' }
+    { name: 'React', icon: Code, color: 'text-blue-500' },
+    { name: 'Next.js', icon: Zap, color: 'text-slate-700' },
+    { name: 'StocksyncAI', icon: null, isCustom: true },
+    { name: 'Supabase', icon: Database, color: 'text-green-500' },
+    { name: 'Stripe', icon: CreditCard, color: 'text-purple-500' },
+    { name: 'Vercel', icon: Rocket, color: 'text-slate-800' },
+    { name: 'Tailwind', icon: Palette, color: 'text-cyan-500' },
+    { name: 'Node.js', icon: Globe, color: 'text-emerald-500' }
   ];
 
   // Duplicate the array for seamless infinite scroll
@@ -43,7 +44,7 @@ const TrustLogos = () => {
           <p className={`text-slate-600 text-lg transition-all duration-800 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
           }`}>
-            Trusted by Ethiopian startups, SMEs & international clients
+            Trusted by Ethiopian startups, solo founders & local businesses
           </p>
           <p className={`text-slate-500 text-sm mt-2 transition-all duration-800 delay-200 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
@@ -64,10 +65,12 @@ const TrustLogos = () => {
               >
                 {tech.isCustom ? (
                   <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-lg mb-2">
-                    {tech.icon}
+                    SA
                   </div>
                 ) : (
-                  <span className="text-4xl mb-2">{tech.icon}</span>
+                  <div className={`w-12 h-12 flex items-center justify-center mb-2 ${tech.color}`}>
+                    {tech.icon && <tech.icon size={32} strokeWidth={1.5} />}
+                  </div>
                 )}
                 <span className="text-sm text-slate-500 font-medium whitespace-nowrap">{tech.name}</span>
               </div>
