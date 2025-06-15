@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,7 +19,9 @@ import {
   User,
   Edit3,
   Save,
-  X
+  X,
+  Star,
+  Layers
 } from 'lucide-react';
 
 interface ProjectFeature {
@@ -75,7 +78,7 @@ const ProjectManagement = () => {
       setLoading(true);
       console.log('Fetching projects with features...');
       
-      // First, fetch projects with project_features and features
+      // Fetch projects with project_features and features
       const { data: projectsData, error: projectsError } = await supabase
         .from('projects')
         .select(`
@@ -286,11 +289,21 @@ const ProjectManagement = () => {
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'starter': return 'text-green-600';
-      case 'business': return 'text-blue-600';
-      case 'enterprise': return 'text-purple-600';
-      case 'custom': return 'text-orange-600';
-      default: return 'text-gray-600';
+      case 'starter': return 'bg-green-100 text-green-800 border-green-200';
+      case 'business': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'enterprise': return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'custom': return 'bg-orange-100 text-orange-800 border-orange-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'starter': return <Star className="h-3 w-3" />;
+      case 'business': return <Layers className="h-3 w-3" />;
+      case 'enterprise': return <Package className="h-3 w-3" />;
+      case 'custom': return <FileText className="h-3 w-3" />;
+      default: return <FileText className="h-3 w-3" />;
     }
   };
 
@@ -378,56 +391,116 @@ const ProjectManagement = () => {
                 </div>
               </div>
 
-              {/* Project Features */}
-              {project.project_features && project.project_features.length > 0 && (
-                <div className="text-sm text-gray-700 bg-blue-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-blue-900 mb-3 flex items-center">
-                    <FileText className="h-4 w-4 mr-2" />
-                    Ordered Features & Services ({project.project_features.length}):
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {project.project_features.map((projectFeature) => (
-                      <div key={projectFeature.id} className="flex items-start bg-white p-3 rounded-lg border">
-                        <CheckCircle2 className="h-4 w-4 text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
-                        <div className="flex-1">
-                          <span className="font-medium text-blue-800">{projectFeature.feature.name}</span>
-                          {projectFeature.feature.description && (
-                            <p className="text-xs text-blue-600 mt-1">{projectFeature.feature.description}</p>
-                          )}
-                          <div className="flex items-center justify-between mt-2">
-                            <span className={`text-xs px-2 py-1 rounded-full bg-gray-100 ${getCategoryColor(projectFeature.feature.category)}`}>
-                              {projectFeature.feature.category}
-                            </span>
-                            <span className="text-sm font-semibold text-blue-800">
-                              {formatCurrency(projectFeature.custom_price || projectFeature.feature.price, 'ETB')}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-3 pt-3 border-t border-blue-200">
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium text-blue-900">Features Total:</span>
-                      <span className="font-bold text-blue-900">
+              {/* Project Features - Enhanced Display */}
+              {project.project_features && project.project_features.length > 0 ? (
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-lg border border-blue-200">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="font-semibold text-blue-900 flex items-center">
+                      <Package className="h-5 w-5 mr-2" />
+                      Selected Features & Services ({project.project_features.length})
+                    </h4>
+                    <div className="flex items-center space-x-2">
+                      <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300">
                         {formatCurrency(
                           project.project_features.reduce((total, pf) => 
                             total + (pf.custom_price || pf.feature.price), 0
                           ), 'ETB'
                         )}
-                      </span>
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {project.project_features.map((projectFeature, index) => (
+                      <div key={projectFeature.id} className="bg-white p-4 rounded-lg border border-blue-200 shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center space-x-2">
+                            <div className="bg-blue-100 p-1.5 rounded-full">
+                              {getCategoryIcon(projectFeature.feature.category)}
+                            </div>
+                            <span className="text-xs font-medium text-blue-600">#{index + 1}</span>
+                          </div>
+                          <Badge className={`text-xs px-2 py-1 ${getCategoryColor(projectFeature.feature.category)}`}>
+                            {projectFeature.feature.category}
+                          </Badge>
+                        </div>
+                        
+                        <h5 className="font-semibold text-gray-900 mb-2 leading-tight">
+                          {projectFeature.feature.name}
+                        </h5>
+                        
+                        {projectFeature.feature.description && (
+                          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                            {projectFeature.feature.description}
+                          </p>
+                        )}
+                        
+                        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                          <div className="flex items-center text-sm text-gray-500">
+                            <span>Qty: {projectFeature.quantity}</span>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold text-blue-900">
+                              {formatCurrency(projectFeature.custom_price || projectFeature.feature.price, 'ETB')}
+                            </div>
+                            {projectFeature.custom_price && (
+                              <div className="text-xs text-orange-600">
+                                Custom Price
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {projectFeature.notes && (
+                          <div className="mt-3 pt-2 border-t border-gray-100">
+                            <p className="text-xs text-gray-600 italic">
+                              Note: {projectFeature.notes}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Features Summary */}
+                  <div className="mt-4 pt-4 border-t border-blue-200 bg-blue-50 -mx-5 -mb-5 px-5 pb-5 rounded-b-lg">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div className="text-center">
+                        <div className="font-semibold text-blue-900">Total Features</div>
+                        <div className="text-blue-700">{project.project_features.length}</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="font-semibold text-blue-900">Features Total</div>
+                        <div className="text-blue-700 font-bold">
+                          {formatCurrency(
+                            project.project_features.reduce((total, pf) => 
+                              total + (pf.custom_price || pf.feature.price), 0
+                            ), 'ETB'
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <div className="font-semibold text-blue-900">Payment Total</div>
+                        <div className="text-blue-700 font-bold">
+                          {project.payment ? formatCurrency(project.payment.amount, project.payment.currency) : 'N/A'}
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <div className="font-semibold text-blue-900">Plan Type</div>
+                        <div className="text-blue-700">{project.payment?.plan_id?.toUpperCase() || 'N/A'}</div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              )}
-
-              {/* Show a message if no features are found */}
-              {(!project.project_features || project.project_features.length === 0) && (
-                <div className="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg">
-                  <p className="flex items-center">
-                    <FileText className="h-4 w-4 mr-2" />
-                    No specific features recorded for this project
-                  </p>
+              ) : (
+                <div className="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <div className="flex items-center justify-center text-center">
+                    <FileText className="h-5 w-5 mr-2 text-gray-400" />
+                    <div>
+                      <p className="font-medium">No specific features recorded</p>
+                      <p className="text-xs mt-1">This project may have been created before the feature system was implemented</p>
+                    </div>
+                  </div>
                 </div>
               )}
 
