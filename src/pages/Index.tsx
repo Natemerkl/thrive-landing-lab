@@ -1,35 +1,37 @@
 
-import { useEffect, useState } from 'react';
-import Navigation from '../components/Navigation';
-import HeroSection from '../components/HeroSection';
-import TrustLogos from '../components/TrustLogos';
-import ServicesSection from '../components/ServicesSection';
-import HowItWorks from '../components/HowItWorks';
-import WhyChooseMe from '../components/WhyChooseMe';
-import Testimonials from '../components/Testimonials';
-import PricingSection from '../components/PricingSection';
-import FAQSection from '../components/FAQSection';
-import FinalCTA from '../components/FinalCTA';
-import Footer from '../components/Footer';
+import HeroSection from "@/components/HeroSection";
+import Navigation from "@/components/Navigation";
+import ServicesSection from "@/components/ServicesSection";
+import WhyChooseMe from "@/components/WhyChooseMe";
+import HowItWorks from "@/components/HowItWorks";
+import PricingSection from "@/components/PricingSection";
+import Testimonials from "@/components/Testimonials";
+import FAQSection from "@/components/FAQSection";
+import FinalCTA from "@/components/FinalCTA";
+import Footer from "@/components/Footer";
+import TrustLogos from "@/components/TrustLogos";
+import NewsletterSubscription from "@/components/NewsletterSubscription";
 
 const Index = () => {
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  useEffect(() => {
-    setIsLoaded(true);
-  }, []);
-
   return (
-    <div className={`min-h-screen bg-white transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+    <div className="min-h-screen">
       <Navigation />
       <HeroSection />
       <TrustLogos />
       <ServicesSection />
-      <HowItWorks />
       <WhyChooseMe />
-      <Testimonials />
+      <HowItWorks />
       <PricingSection />
+      <Testimonials />
       <FAQSection />
+      
+      {/* Newsletter section */}
+      <section className="py-16 bg-slate-50">
+        <div className="max-w-4xl mx-auto px-6 lg:px-8">
+          <NewsletterSubscription />
+        </div>
+      </section>
+      
       <FinalCTA />
       <Footer />
     </div>
