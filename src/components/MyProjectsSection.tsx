@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { FolderOpen, Calendar, DollarSign, RefreshCw, Package, CheckCircle2 } from 'lucide-react';
+import { FolderOpen, Calendar, DollarSign, RefreshCw, Package, CheckCircle2, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -138,6 +138,72 @@ const MyProjectsSection: React.FC = () => {
     }
   };
 
+  const parseProjectFeatures = (description: string | null) => {
+    if (!description) return [];
+    
+    // Extract features from the structured description
+    const lines = description.split('\n');
+    const features: string[] = [];
+    let inFeatureSection = false;
+    
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      
+      // Check if we're entering a features section
+      if (trimmedLine.includes('including:') || 
+          trimmedLine.includes('features:') || 
+          trimmedLine.includes('Features:') ||
+          trimmedLine.includes('package including:')) {
+        inFeatureSection = true;
+        continue;
+      }
+      
+      // Check if we're leaving the features section
+      if (inFeatureSection && (trimmedLine.startsWith('CLIENT INFORMATION:') || 
+          trimmedLine.startsWith('PROJECT STATUS:') ||
+          trimmedLine.startsWith('PAYMENT NOTES:'))) {
+        inFeatureSection = false;
+        continue;
+      }
+      
+      // Extract features (lines starting with • or -)
+      if (inFeatureSection && (trimmedLine.startsWith('•') || trimmedLine.startsWith('-'))) {
+        const feature = trimmedLine.replace(/^[•\-]\s*/, '').trim();
+        if (feature) {
+          features.push(feature);
+        }
+      }
+    }
+    
+    return features;
+  };
+
+  const extractClientInfo = (description: string | null) => {
+    if (!description) return null;
+    
+    const clientInfoMatch = description.match(/CLIENT INFORMATION:(.*?)(?=PROJECT STATUS:|PAYMENT NOTES:|$)/s);
+    if (!clientInfoMatch) return null;
+    
+    const clientInfo = clientInfoMatch[1].trim();
+    const info: any = {};
+    
+    const lines = clientInfo.split('\n');
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      if (trimmedLine.startsWith('• Client:')) {
+        info.client = trimmedLine.replace('• Client:', '').trim();
+      } else if (trimmedLine.startsWith('• Payment Amount:')) {
+        info.amount = trimmedLine.replace('• Payment Amount:', '').trim();
+      } else if (trimmedLine.startsWith('• Payment Method:')) {
+        info.method = trimmedLine.replace('• Payment Method:', '').trim();
+      } else if (trimmedLine.startsWith('• Package:')) {
+        info.package = trimmedLine.replace('• Package:', '').trim();
+      }
+    }
+    
+    return info;
+  };
+
   if (loading) {
     return (
       <Card>
@@ -202,76 +268,97 @@ const MyProjectsSection: React.FC = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          {projects.map((project) => (
-            <div key={project.id} className="border rounded-lg p-6 space-y-4 bg-white shadow-sm">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900">{project.title}</h3>
-                  {project.payment && (
-                    <div className="flex items-center mt-1 text-sm text-gray-600">
-                      <DollarSign className="h-4 w-4 mr-1" />
-                      {formatCurrency(project.payment.amount, project.payment.currency)} - {project.payment.plan_id.replace('-', ' ').toUpperCase()} Package
+          {projects.map((project) => {
+            const features = parseProjectFeatures(project.description);
+            const clientInfo = extractClientInfo(project.description);
+            
+            return (
+              <div key={project.id} className="border rounded-lg p-6 space-y-4 bg-white shadow-sm">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900">{project.title}</h3>
+                    {project.payment && (
+                      <div className="flex items-center mt-1 text-sm text-gray-600">
+                        <DollarSign className="h-4 w-4 mr-1" />
+                        {formatCurrency(project.payment.amount, project.payment.currency)} - {project.payment.plan_id.replace('-', ' ').toUpperCase()} Package
+                      </div>
+                    )}
+                    {clientInfo?.package && (
+                      <div className="flex items-center mt-1 text-sm text-blue-600">
+                        <Package className="h-4 w-4 mr-1" />
+                        Package: {clientInfo.package}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center">
+                    {getStatusIcon(project.status)}
+                    <Badge className={`ml-2 ${getStatusColor(project.status)}`}>
+                      {project.status.replace('_', ' ')}
+                    </Badge>
+                  </div>
+                </div>
+
+                {features.length > 0 && (
+                  <div className="text-sm text-gray-700 bg-blue-50 p-4 rounded-lg">
+                    <h4 className="font-medium text-blue-900 mb-3 flex items-center">
+                      <FileText className="h-4 w-4 mr-2" />
+                      Ordered Features & Services:
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      {features.map((feature, index) => (
+                        <div key={index} className="flex items-start">
+                          <CheckCircle2 className="h-4 w-4 text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
+                          <span className="text-blue-800">{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-3">
+                  <div className="flex justify-between text-sm">
+                    <span className="font-medium text-gray-700">Project Progress</span>
+                    <span className="text-gray-600">{getStatusProgress(project.status)}%</span>
+                  </div>
+                  <Progress value={getStatusProgress(project.status)} className="h-3" />
+                  
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <p className="text-sm text-blue-800">{getStatusMessage(project.status)}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-3 border-t">
+                  <div className="text-sm">
+                    <div className="flex items-center text-gray-500 mb-1">
+                      <Calendar className="h-4 w-4 mr-1" />
+                      <span className="font-medium">Ordered</span>
+                    </div>
+                    <span className="text-gray-900">{formatDate(project.created_at)}</span>
+                  </div>
+                  
+                  {project.start_date && (
+                    <div className="text-sm">
+                      <div className="flex items-center text-blue-500 mb-1">
+                        <Package className="h-4 w-4 mr-1" />
+                        <span className="font-medium">Started</span>
+                      </div>
+                      <span className="text-blue-700">{formatDate(project.start_date)}</span>
+                    </div>
+                  )}
+                  
+                  {project.completion_date && (
+                    <div className="text-sm">
+                      <div className="flex items-center text-green-500 mb-1">
+                        <CheckCircle2 className="h-4 w-4 mr-1" />
+                        <span className="font-medium">Completed</span>
+                      </div>
+                      <span className="text-green-700">{formatDate(project.completion_date)}</span>
                     </div>
                   )}
                 </div>
-                <div className="flex items-center">
-                  {getStatusIcon(project.status)}
-                  <Badge className={`ml-2 ${getStatusColor(project.status)}`}>
-                    {project.status.replace('_', ' ')}
-                  </Badge>
-                </div>
               </div>
-
-              {project.description && (
-                <div className="text-sm text-gray-700 bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-gray-900 mb-2">Project Details & Features:</h4>
-                  <div className="whitespace-pre-line">{project.description}</div>
-                </div>
-              )}
-
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="font-medium text-gray-700">Project Progress</span>
-                  <span className="text-gray-600">{getStatusProgress(project.status)}%</span>
-                </div>
-                <Progress value={getStatusProgress(project.status)} className="h-3" />
-                
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                  <p className="text-sm text-blue-800">{getStatusMessage(project.status)}</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-3 border-t">
-                <div className="text-sm">
-                  <div className="flex items-center text-gray-500 mb-1">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    <span className="font-medium">Ordered</span>
-                  </div>
-                  <span className="text-gray-900">{formatDate(project.created_at)}</span>
-                </div>
-                
-                {project.start_date && (
-                  <div className="text-sm">
-                    <div className="flex items-center text-blue-500 mb-1">
-                      <Package className="h-4 w-4 mr-1" />
-                      <span className="font-medium">Started</span>
-                    </div>
-                    <span className="text-blue-700">{formatDate(project.start_date)}</span>
-                  </div>
-                )}
-                
-                {project.completion_date && (
-                  <div className="text-sm">
-                    <div className="flex items-center text-green-500 mb-1">
-                      <CheckCircle2 className="h-4 w-4 mr-1" />
-                      <span className="font-medium">Completed</span>
-                    </div>
-                    <span className="text-green-700">{formatDate(project.completion_date)}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </CardContent>
     </Card>
