@@ -28,10 +28,26 @@ const RecentWorks = () => {
       id: 'stocksyncai',
       title: 'StockSyncAI Dashboard',
       description: 'AI-powered inventory management system with real-time analytics and automated stock tracking.',
-      image: '/lovable-uploads/8b51cefa-7b54-4688-895a-ea6c129ec461.png',
+      image: '/lovable-uploads/34884686-6b53-4213-8343-8faa72f6c154.png',
       url: 'https://stocksyncai.pro.et/',
       tags: ['React', 'AI', 'Dashboard', 'Analytics'],
       featured: true
+    },
+    {
+      id: 'construction',
+      title: 'BuildRight Construction Portfolio',
+      description: 'Professional construction company website with project showcases and client testimonials.',
+      image: '/lovable-uploads/614430b8-d805-4d5f-aee8-10e0894937e5.png',
+      tags: ['React', 'Portfolio', 'Construction'],
+      featured: false
+    },
+    {
+      id: 'realestate',
+      title: 'Elite Homes Real Estate',
+      description: 'Modern real estate platform with property listings and advanced search features.',
+      image: '/lovable-uploads/03651402-ea4d-4e49-a02f-fdbebd1c1b32.png',
+      tags: ['React', 'Real Estate', 'Property'],
+      featured: false
     },
     {
       id: 'ecommerce',
@@ -39,22 +55,6 @@ const RecentWorks = () => {
       description: 'Modern online store with payment integration and inventory management.',
       image: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=600&fit=crop',
       tags: ['React', 'Stripe', 'E-commerce'],
-      featured: false
-    },
-    {
-      id: 'portfolio',
-      title: 'Creative Portfolio',
-      description: 'Stunning portfolio website with smooth animations and responsive design.',
-      image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=600&fit=crop',
-      tags: ['Next.js', 'Animation', 'Portfolio'],
-      featured: false
-    },
-    {
-      id: 'business',
-      title: 'Business Landing Page',
-      description: 'Professional landing page with lead generation and analytics integration.',
-      image: 'https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=800&h=600&fit=crop',
-      tags: ['React', 'SEO', 'Analytics'],
       featured: false
     }
   ];
