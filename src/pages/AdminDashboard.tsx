@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Eye, Check, X, ArrowLeft, Users, CreditCard, FileText, MessageSquare, Mail, Search, Filter } from 'lucide-react';
 import ContactMessageCard from '@/components/ContactMessageCard';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Payment {
   id: string;
@@ -61,6 +62,8 @@ interface UserProfile {
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, userRole } = useAuth();
+  
   const [payments, setPayments] = useState<Payment[]>([]);
   const [billingHistory, setBillingHistory] = useState<BillingHistory[]>([]);
   const [contactInquiries, setContactInquiries] = useState<ContactInquiry[]>([]);
@@ -369,10 +372,37 @@ const AdminDashboard = () => {
     }
   };
 
+  // Check if user is admin - use both role and email check for safety
+  const isAdmin = userRole === 'admin' || user?.email === 'nattyesquire@gmail.com';
+
+  // Redirect if not admin
+  useEffect(() => {
+    if (!isAdmin && user) {
+      navigate('/dashboard');
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to access this page",
+        variant: "destructive",
+      });
+    }
+  }, [isAdmin, user, navigate, toast]);
+
   if (loading) {
     return (
       <div className="container mx-auto py-12 px-4 text-center">
         Loading admin dashboard...
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="container mx-auto py-12 px-4 text-center">
+        <h1 className="text-2xl font-bold text-red-600">Access Denied</h1>
+        <p className="text-muted-foreground mt-4">You don't have permission to access this page.</p>
+        <Button onClick={() => navigate('/dashboard')} className="mt-4">
+          Go to Dashboard
+        </Button>
       </div>
     );
   }
@@ -472,11 +502,11 @@ const AdminDashboard = () => {
 
       {/* Main Content */}
       <Tabs defaultValue="users" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="inquiries">Contact Messages</TabsTrigger>
-          <TabsTrigger value="payments">Payment Management</TabsTrigger>
-          <TabsTrigger value="billing">Billing History</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="users">Users ({userProfiles.length})</TabsTrigger>
+          <TabsTrigger value="inquiries">Messages ({filteredInquiries.length})</TabsTrigger>
+          <TabsTrigger value="payments">Payments ({payments.length})</TabsTrigger>
+          <TabsTrigger value="billing">Billing ({billingHistory.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="users" className="space-y-6">
