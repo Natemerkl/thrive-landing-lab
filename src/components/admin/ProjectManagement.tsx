@@ -106,10 +106,10 @@ const ProjectManagement = () => {
       }
 
       // Transform the data to match our interface
-      const transformedProjects = (data || []).map(project => ({
+      const transformedProjects: Project[] = (data || []).map(project => ({
         ...project,
-        payment: project.payments?.[0] || null,
-        profile: project.profiles?.[0] || null,
+        payment: Array.isArray(project.payments) && project.payments.length > 0 ? project.payments[0] : null,
+        profile: Array.isArray(project.profiles) && project.profiles.length > 0 ? project.profiles[0] : null,
         project_features: (project.project_features || []).map(pf => ({
           ...pf,
           feature: pf.features
