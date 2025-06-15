@@ -26,7 +26,7 @@ const Navigation = () => {
               <Code className="h-6 w-6 text-white" />
             </div>
             <span className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-              DevCraft
+              MERKL.DEV
             </span>
           </div>
 
