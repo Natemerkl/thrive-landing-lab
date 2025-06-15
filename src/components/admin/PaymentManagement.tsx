@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -67,18 +68,36 @@ const PaymentManagement: React.FC = () => {
 
   const createProjectFromPayment = async (payment: Payment) => {
     try {
-      // Create project title based on plan_id
-      const projectTitle = `${payment.plan_id.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())} Project`;
+      // Create detailed project description based on plan and payment info
+      const planDetails = {
+        'starter': 'Simple Landing Page Package',
+        'business': 'Multi-Page Website Package', 
+        'enterprise': 'Full-Stack Application Package',
+        'custom': 'Custom Project Package'
+      };
+
+      const projectTitle = planDetails[payment.plan_id as keyof typeof planDetails] || payment.plan_id.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
       
+      const projectDescription = `
+Project Package: ${projectTitle}
+Client Email: ${payment.payer_email}
+Payment Amount: ${payment.amount} ${payment.currency}
+Payment Method: ${payment.payment_method} via ${payment.bank}
+Bank Reference: ${payment.bank_reference}
+
+This project was created from verified payment and includes all features selected by the client during checkout.
+${payment.notes ? `\nPayment Notes: ${payment.notes}` : ''}
+      `.trim();
+
       const { error } = await supabase
         .from('projects')
         .insert({
           user_id: payment.user_id,
           payment_id: payment.id,
           title: projectTitle,
-          description: `Project for ${payment.plan_id} plan - ${payment.payer_email}`,
+          description: projectDescription,
           status: 'pending',
-          notes: `Auto-created from verified payment. Amount: ${payment.amount} ${payment.currency}`
+          notes: `Auto-created from verified payment ID: ${payment.id}. Ready for admin review and project initiation.`
         });
 
       if (error) {
@@ -123,12 +142,12 @@ const PaymentManagement: React.FC = () => {
             await createProjectFromPayment(payment);
             toast({
               title: "Success",
-              description: `Payment verified and project created!`,
+              description: `Payment verified and project created! Check Project Management tab.`,
             });
           } catch (error) {
             toast({
               title: "Warning",
-              description: "Payment verified but project creation failed. Create manually.",
+              description: "Payment verified but project creation failed. Create manually in Projects tab.",
               variant: "destructive",
             });
           }
@@ -233,8 +252,8 @@ const PaymentManagement: React.FC = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Payer</TableHead>
-                  <TableHead>Plan & Amount</TableHead>
+                  <TableHead>Payer & Package</TableHead>
+                  <TableHead>Amount & Plan</TableHead>
                   <TableHead>Payment Details</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Date</TableHead>
@@ -248,15 +267,20 @@ const PaymentManagement: React.FC = () => {
                       <div>
                         <div className="font-medium">{payment.payer_email}</div>
                         <div className="text-sm text-gray-500">
-                          ID: {payment.user_id.substring(0, 8)}...
+                          User ID: {payment.user_id.substring(0, 8)}...
+                        </div>
+                        <div className="text-sm font-medium text-blue-600">
+                          Package: {payment.plan_id}
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div>
-                        <div className="font-medium">{payment.plan_id}</div>
-                        <div className="text-sm text-gray-500">
+                        <div className="text-lg font-bold text-green-600">
                           {payment.amount} {payment.currency}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          Plan: {payment.plan_id.replace('-', ' ').toUpperCase()}
                         </div>
                       </div>
                     </TableCell>
