@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -38,6 +37,12 @@ interface ProjectFeature {
   notes: string | null;
 }
 
+interface ParsedFeature {
+  name: string;
+  category: string;
+  price?: number;
+}
+
 interface Project {
   id: string;
   title: string;
@@ -60,6 +65,7 @@ interface Project {
     email: string | null;
   } | null;
   project_features: ProjectFeature[];
+  parsed_features?: ParsedFeature[];
 }
 
 const ProjectManagement = () => {
@@ -72,6 +78,43 @@ const ProjectManagement = () => {
   useEffect(() => {
     fetchProjects();
   }, []);
+
+  // Parse features from project description
+  const parseFeatures = (description: string | null): ParsedFeature[] => {
+    if (!description) return [];
+    
+    const featuresMatch = description.match(/SELECTED FEATURES:(.*?)(?=CLIENT INFORMATION:|$)/s);
+    if (!featuresMatch) return [];
+    
+    const featuresText = featuresMatch[1];
+    const features: ParsedFeature[] = [];
+    
+    const lines = featuresText.split('\n');
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      if (trimmedLine.startsWith('•') || trimmedLine.startsWith('-')) {
+        const featureName = trimmedLine.replace(/^[•\-]\s*/, '').trim();
+        if (featureName) {
+          // Determine category based on feature name
+          let category = 'custom';
+          if (featureName.toLowerCase().includes('basic') || featureName.toLowerCase().includes('landing')) {
+            category = 'starter';
+          } else if (featureName.toLowerCase().includes('advanced') || featureName.toLowerCase().includes('business') || featureName.toLowerCase().includes('seo')) {
+            category = 'business';
+          } else if (featureName.toLowerCase().includes('professional') || featureName.toLowerCase().includes('template')) {
+            category = 'enterprise';
+          }
+          
+          features.push({
+            name: featureName,
+            category
+          });
+        }
+      }
+    }
+    
+    return features;
+  };
 
   const fetchProjects = async () => {
     try {
@@ -146,6 +189,11 @@ const ProjectManagement = () => {
             profile = profileData;
           }
 
+          // Parse features from description if no project_features exist
+          const parsedFeatures = (project.project_features || []).length === 0 
+            ? parseFeatures(project.description) 
+            : [];
+
           return {
             ...project,
             payment,
@@ -153,7 +201,8 @@ const ProjectManagement = () => {
             project_features: (project.project_features || []).map(pf => ({
               ...pf,
               feature: pf.features
-            }))
+            })),
+            parsed_features: parsedFeatures
           };
         })
       );
@@ -391,27 +440,35 @@ const ProjectManagement = () => {
                 </div>
               </div>
 
-              {/* Project Features - Enhanced Display */}
-              {project.project_features && project.project_features.length > 0 ? (
+              {/* Project Features - Display both saved features and parsed features */}
+              {(project.project_features && project.project_features.length > 0) || (project.parsed_features && project.parsed_features.length > 0) ? (
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-lg border border-blue-200">
                   <div className="flex items-center justify-between mb-4">
                     <h4 className="font-semibold text-blue-900 flex items-center">
                       <Package className="h-5 w-5 mr-2" />
-                      Selected Features & Services ({project.project_features.length})
+                      Selected Features & Services ({(project.project_features?.length || 0) + (project.parsed_features?.length || 0)})
                     </h4>
                     <div className="flex items-center space-x-2">
-                      <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300">
-                        {formatCurrency(
-                          project.project_features.reduce((total, pf) => 
-                            total + (pf.custom_price || pf.feature.price), 0
-                          ), 'ETB'
-                        )}
-                      </Badge>
+                      {project.project_features && project.project_features.length > 0 && (
+                        <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300">
+                          {formatCurrency(
+                            project.project_features.reduce((total, pf) => 
+                              total + (pf.custom_price || pf.feature.price), 0
+                            ), 'ETB'
+                          )}
+                        </Badge>
+                      )}
+                      {project.parsed_features && project.parsed_features.length > 0 && (
+                        <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-300">
+                          Parsed from Description
+                        </Badge>
+                      )}
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {project.project_features.map((projectFeature, index) => (
+                    {/* Render saved project features */}
+                    {project.project_features?.map((projectFeature, index) => (
                       <div key={projectFeature.id} className="bg-white p-4 rounded-lg border border-blue-200 shadow-sm hover:shadow-md transition-shadow">
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-center space-x-2">
@@ -460,6 +517,38 @@ const ProjectManagement = () => {
                         )}
                       </div>
                     ))}
+                    
+                    {/* Render parsed features from description */}
+                    {project.parsed_features?.map((parsedFeature, index) => (
+                      <div key={`parsed-${index}`} className="bg-white p-4 rounded-lg border border-orange-200 shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center space-x-2">
+                            <div className="bg-orange-100 p-1.5 rounded-full">
+                              {getCategoryIcon(parsedFeature.category)}
+                            </div>
+                            <span className="text-xs font-medium text-orange-600">#{(project.project_features?.length || 0) + index + 1}</span>
+                          </div>
+                          <Badge className={`text-xs px-2 py-1 ${getCategoryColor(parsedFeature.category)}`}>
+                            {parsedFeature.category}
+                          </Badge>
+                        </div>
+                        
+                        <h5 className="font-semibold text-gray-900 mb-2 leading-tight">
+                          {parsedFeature.name}
+                        </h5>
+                        
+                        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                          <div className="flex items-center text-sm text-gray-500">
+                            <span>From Description</span>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-xs text-orange-600">
+                              Feature Detected
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                   
                   {/* Features Summary */}
@@ -467,27 +556,21 @@ const ProjectManagement = () => {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div className="text-center">
                         <div className="font-semibold text-blue-900">Total Features</div>
-                        <div className="text-blue-700">{project.project_features.length}</div>
+                        <div className="text-blue-700">{(project.project_features?.length || 0) + (project.parsed_features?.length || 0)}</div>
                       </div>
                       <div className="text-center">
-                        <div className="font-semibold text-blue-900">Features Total</div>
-                        <div className="text-blue-700 font-bold">
-                          {formatCurrency(
-                            project.project_features.reduce((total, pf) => 
-                              total + (pf.custom_price || pf.feature.price), 0
-                            ), 'ETB'
-                          )}
-                        </div>
+                        <div className="font-semibold text-blue-900">Saved Features</div>
+                        <div className="text-blue-700">{project.project_features?.length || 0}</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="font-semibold text-blue-900">Parsed Features</div>
+                        <div className="text-orange-700">{project.parsed_features?.length || 0}</div>
                       </div>
                       <div className="text-center">
                         <div className="font-semibold text-blue-900">Payment Total</div>
                         <div className="text-blue-700 font-bold">
                           {project.payment ? formatCurrency(project.payment.amount, project.payment.currency) : 'N/A'}
                         </div>
-                      </div>
-                      <div className="text-center">
-                        <div className="font-semibold text-blue-900">Plan Type</div>
-                        <div className="text-blue-700">{project.payment?.plan_id?.toUpperCase() || 'N/A'}</div>
                       </div>
                     </div>
                   </div>
