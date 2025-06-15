@@ -11,7 +11,7 @@ import UserManagement from '@/components/admin/UserManagement';
 const AdminDashboard = () => {
   const { user, userRole, signOut } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('overview');
 
   // Set active tab based on URL parameter
@@ -21,6 +21,13 @@ const AdminDashboard = () => {
       setActiveTab(tabParam);
     }
   }, [searchParams]);
+
+  // Update URL when tab changes
+  const handleTabChange = (newTab: string) => {
+    console.log('Changing tab to:', newTab);
+    setActiveTab(newTab);
+    setSearchParams({ tab: newTab });
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -32,6 +39,8 @@ const AdminDashboard = () => {
     navigate('/dashboard');
     return null;
   }
+
+  console.log('Current active tab:', activeTab);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-100">
@@ -73,7 +82,7 @@ const AdminDashboard = () => {
             </CardHeader>
             <CardContent>
               <Button 
-                onClick={() => setActiveTab('overview')} 
+                onClick={() => handleTabChange('overview')} 
                 className="w-full bg-red-600 hover:bg-red-700"
               >
                 View Overview
@@ -94,7 +103,7 @@ const AdminDashboard = () => {
             </CardHeader>
             <CardContent>
               <Button 
-                onClick={() => setActiveTab('users')} 
+                onClick={() => handleTabChange('users')} 
                 className="w-full bg-orange-600 hover:bg-orange-700"
               >
                 Manage Users
@@ -115,7 +124,7 @@ const AdminDashboard = () => {
             </CardHeader>
             <CardContent>
               <Button 
-                onClick={() => setActiveTab('payments')} 
+                onClick={() => handleTabChange('payments')} 
                 className="w-full bg-purple-600 hover:bg-purple-700"
               >
                 Manage Payments
@@ -136,7 +145,7 @@ const AdminDashboard = () => {
             </CardHeader>
             <CardContent>
               <Button 
-                onClick={() => setActiveTab('messages')} 
+                onClick={() => handleTabChange('messages')} 
                 className="w-full bg-teal-600 hover:bg-teal-700"
               >
                 View Messages
@@ -146,7 +155,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Admin Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
@@ -182,6 +191,7 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="users" className="space-y-4">
+            {console.log('Rendering users tab content')}
             <UserManagement />
           </TabsContent>
 
