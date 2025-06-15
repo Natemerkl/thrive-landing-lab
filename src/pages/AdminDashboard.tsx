@@ -50,12 +50,21 @@ interface ContactInquiry {
   created_at: string;
 }
 
+interface UserProfile {
+  id: string;
+  email: string;
+  full_name: string | null;
+  created_at: string;
+  role: string | null;
+}
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [payments, setPayments] = useState<Payment[]>([]);
   const [billingHistory, setBillingHistory] = useState<BillingHistory[]>([]);
   const [contactInquiries, setContactInquiries] = useState<ContactInquiry[]>([]);
+  const [userProfiles, setUserProfiles] = useState<UserProfile[]>([]);
   const [filteredInquiries, setFilteredInquiries] = useState<ContactInquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null);
@@ -67,14 +76,12 @@ const AdminDashboard = () => {
     verifiedPayments: 0,
     totalRevenue: 0,
     totalInquiries: 0,
-    newInquiries: 0
+    newInquiries: 0,
+    totalUsers: 0
   });
 
   useEffect(() => {
-    fetchPayments();
-    fetchBillingHistory();
-    fetchContactInquiries();
-    calculateStats();
+    fetchAllData();
   }, []);
 
   useEffect(() => {
@@ -96,14 +103,81 @@ const AdminDashboard = () => {
     setFilteredInquiries(filtered);
   }, [contactInquiries, searchTerm, statusFilter]);
 
+  const fetchAllData = async () => {
+    try {
+      await Promise.all([
+        fetchPayments(),
+        fetchBillingHistory(),
+        fetchContactInquiries(),
+        fetchUserProfiles(),
+        calculateStats()
+      ]);
+    } catch (error) {
+      console.error('Error fetching admin data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch admin data",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchUserProfiles = async () => {
+    try {
+      console.log('Fetching user profiles...');
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+        throw profilesError;
+      }
+
+      // Fetch roles for each user
+      const { data: roles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
+
+      if (rolesError) {
+        console.error('Error fetching roles:', rolesError);
+      }
+
+      // Combine profiles with roles
+      const profilesWithRoles = profiles?.map(profile => ({
+        ...profile,
+        role: roles?.find(role => role.user_id === profile.id)?.role || 'user'
+      })) || [];
+
+      console.log('Fetched user profiles:', profilesWithRoles);
+      setUserProfiles(profilesWithRoles);
+    } catch (error: any) {
+      console.error('Error fetching user profiles:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch user profiles",
+        variant: "destructive",
+      });
+    }
+  };
+
   const fetchContactInquiries = async () => {
     try {
+      console.log('Fetching contact inquiries...');
       const { data, error } = await supabase
         .from('contact_inquiries')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching contact inquiries:', error);
+        throw error;
+      }
+      
+      console.log('Fetched contact inquiries:', data);
       setContactInquiries(data || []);
     } catch (error: any) {
       console.error('Error fetching contact inquiries:', error);
@@ -117,12 +191,18 @@ const AdminDashboard = () => {
 
   const fetchPayments = async () => {
     try {
+      console.log('Fetching payments...');
       const { data, error } = await supabase
         .from('payments')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching payments:', error);
+        throw error;
+      }
+      
+      console.log('Fetched payments:', data);
       setPayments(data || []);
     } catch (error: any) {
       console.error('Error fetching payments:', error);
@@ -136,17 +216,21 @@ const AdminDashboard = () => {
 
   const fetchBillingHistory = async () => {
     try {
+      console.log('Fetching billing history...');
       const { data, error } = await supabase
         .from('billing_history')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching billing history:', error);
+        throw error;
+      }
+      
+      console.log('Fetched billing history:', data);
       setBillingHistory(data || []);
     } catch (error: any) {
       console.error('Error fetching billing history:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -160,6 +244,10 @@ const AdminDashboard = () => {
         .from('contact_inquiries')
         .select('status');
 
+      const { data: usersData } = await supabase
+        .from('profiles')
+        .select('id');
+
       if (paymentsData) {
         const totalPayments = paymentsData.length;
         const pendingPayments = paymentsData.filter(p => p.status === 'pending').length;
@@ -170,6 +258,7 @@ const AdminDashboard = () => {
 
         const totalInquiries = inquiriesData?.length || 0;
         const newInquiries = inquiriesData?.filter(i => i.status === 'new').length || 0;
+        const totalUsers = usersData?.length || 0;
 
         setStats({
           totalPayments,
@@ -177,7 +266,8 @@ const AdminDashboard = () => {
           verifiedPayments,
           totalRevenue,
           totalInquiries,
-          newInquiries
+          newInquiries,
+          totalUsers
         });
       }
     } catch (error) {
@@ -273,6 +363,8 @@ const AdminDashboard = () => {
       case 'in_progress': return 'bg-orange-100 text-orange-800';
       case 'completed': return 'bg-green-100 text-green-800';
       case 'closed': return 'bg-gray-100 text-gray-800';
+      case 'admin': return 'bg-red-100 text-red-800';
+      case 'user': return 'bg-blue-100 text-blue-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -304,7 +396,17 @@ const AdminDashboard = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-7 gap-6 mb-8">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-purple-600">{stats.totalUsers}</div>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Payments</CardTitle>
@@ -338,7 +440,7 @@ const AdminDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">
@@ -369,12 +471,58 @@ const AdminDashboard = () => {
       </div>
 
       {/* Main Content */}
-      <Tabs defaultValue="inquiries" className="space-y-6">
+      <Tabs defaultValue="users" className="space-y-6">
         <TabsList>
+          <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="inquiries">Contact Messages</TabsTrigger>
           <TabsTrigger value="payments">Payment Management</TabsTrigger>
           <TabsTrigger value="billing">Billing History</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="users" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Registered Users ({userProfiles.length})</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                View and manage all registered users
+              </p>
+            </CardHeader>
+            <CardContent>
+              {userProfiles.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No users found.
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead>Joined</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {userProfiles.map((user) => (
+                        <TableRow key={user.id}>
+                          <TableCell>{user.full_name || 'N/A'}</TableCell>
+                          <TableCell>{user.email}</TableCell>
+                          <TableCell>
+                            <Badge className={getStatusColor(user.role || 'user')}>
+                              {user.role || 'user'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{formatDate(user.created_at)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="inquiries" className="space-y-6">
           <Card>
