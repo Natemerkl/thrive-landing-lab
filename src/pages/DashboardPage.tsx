@@ -88,7 +88,7 @@ const DashboardPage = () => {
               </CardHeader>
               <CardContent>
                 <Button 
-                  onClick={() => navigate('/admin')} 
+                  onClick={() => navigate('/admin?tab=users')} 
                   className="w-full bg-orange-600 hover:bg-orange-700"
                 >
                   Manage Users
@@ -111,7 +111,7 @@ const DashboardPage = () => {
               </CardHeader>
               <CardContent>
                 <Button 
-                  onClick={() => navigate('/admin')} 
+                  onClick={() => navigate('/admin?tab=payments')} 
                   className="w-full bg-purple-600 hover:bg-purple-700"
                 >
                   Manage Payments
@@ -134,7 +134,7 @@ const DashboardPage = () => {
               </CardHeader>
               <CardContent>
                 <Button 
-                  onClick={() => navigate('/admin')} 
+                  onClick={() => navigate('/admin?tab=messages')} 
                   className="w-full bg-teal-600 hover:bg-teal-700"
                 >
                   View Messages
