@@ -1,32 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LogOut, Settings, Users, CreditCard, MessageSquare, ArrowLeft } from 'lucide-react';
+import { useAdminNavigation } from '@/hooks/useAdminNavigation';
+import AdminHeader from '@/components/admin/AdminHeader';
+import AdminNavigationCards from '@/components/admin/AdminNavigationCards';
+import AdminOverview from '@/components/admin/AdminOverview';
 import UserManagement from '@/components/admin/UserManagement';
+import ContactMessages from '@/components/admin/ContactMessages';
+import PaymentManagement from '@/components/admin/PaymentManagement';
 
 const AdminDashboard = () => {
   const { user, userRole, signOut } = useAuth();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState('overview');
-
-  // Set active tab based on URL parameter
-  useEffect(() => {
-    const tabParam = searchParams.get('tab');
-    if (tabParam && ['overview', 'users', 'payments', 'messages'].includes(tabParam)) {
-      setActiveTab(tabParam);
-    }
-  }, [searchParams]);
-
-  // Update URL when tab changes
-  const handleTabChange = (newTab: string) => {
-    console.log('Changing tab to:', newTab);
-    setActiveTab(newTab);
-    setSearchParams({ tab: newTab });
-  };
+  const { activeTab, handleTabChange } = useAdminNavigation();
 
   const handleSignOut = async () => {
     await signOut();
@@ -44,114 +32,9 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-100">
       <div className="container mx-auto py-8 px-4 max-w-7xl">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center gap-4">
-            <Button onClick={() => navigate('/dashboard')} variant="outline">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Dashboard
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight text-red-900">
-                Admin Dashboard
-              </h1>
-              <p className="text-red-700">
-                {user?.email} • Administrator Access
-              </p>
-            </div>
-          </div>
-          <Button onClick={handleSignOut} variant="outline">
-            <LogOut className="mr-2 h-4 w-4" />
-            Sign Out
-          </Button>
-        </div>
-
-        {/* Admin Navigation Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Admin Dashboard Card */}
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow border-red-200 bg-red-50">
-            <CardHeader>
-              <CardTitle className="flex items-center text-red-900">
-                <Settings className="mr-2 h-5 w-5" />
-                Admin Dashboard
-              </CardTitle>
-              <CardDescription className="text-red-700">
-                Access full admin dashboard with all management tools
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button 
-                onClick={() => handleTabChange('overview')} 
-                className="w-full bg-red-600 hover:bg-red-700"
-              >
-                View Overview
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* User Management Card */}
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow border-orange-200 bg-orange-50">
-            <CardHeader>
-              <CardTitle className="flex items-center text-orange-900">
-                <Users className="mr-2 h-5 w-5" />
-                User Management
-              </CardTitle>
-              <CardDescription className="text-orange-700">
-                View and manage user accounts and roles
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button 
-                onClick={() => handleTabChange('users')} 
-                className="w-full bg-orange-600 hover:bg-orange-700"
-              >
-                Manage Users
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Payment Management Card */}
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow border-purple-200 bg-purple-50">
-            <CardHeader>
-              <CardTitle className="flex items-center text-purple-900">
-                <CreditCard className="mr-2 h-5 w-5" />
-                Payment Management
-              </CardTitle>
-              <CardDescription className="text-purple-700">
-                Review payment screenshots and approve transactions
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button 
-                onClick={() => handleTabChange('payments')} 
-                className="w-full bg-purple-600 hover:bg-purple-700"
-              >
-                Manage Payments
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Contact Messages Card */}
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow border-teal-200 bg-teal-50">
-            <CardHeader>
-              <CardTitle className="flex items-center text-teal-900">
-                <MessageSquare className="mr-2 h-5 w-5" />
-                Contact Messages
-              </CardTitle>
-              <CardDescription className="text-teal-700">
-                Review and respond to customer inquiries
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button 
-                onClick={() => handleTabChange('messages')} 
-                className="w-full bg-teal-600 hover:bg-teal-700"
-              >
-                View Messages
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+        <AdminHeader userEmail={user?.email} onSignOut={handleSignOut} />
+        
+        <AdminNavigationCards onTabChange={handleTabChange} />
 
         {/* Admin Tabs */}
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
@@ -163,30 +46,7 @@ const AdminDashboard = () => {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Dashboard Overview</CardTitle>
-                <CardDescription>
-                  Welcome to the admin dashboard. Use the navigation cards above or tabs below to access different sections.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-4 bg-blue-50 rounded-lg">
-                    <h3 className="font-semibold text-blue-900">Total Users</h3>
-                    <p className="text-2xl font-bold text-blue-600">Loading...</p>
-                  </div>
-                  <div className="p-4 bg-green-50 rounded-lg">
-                    <h3 className="font-semibold text-green-900">Pending Payments</h3>
-                    <p className="text-2xl font-bold text-green-600">Loading...</p>
-                  </div>
-                  <div className="p-4 bg-yellow-50 rounded-lg">
-                    <h3 className="font-semibold text-yellow-900">New Messages</h3>
-                    <p className="text-2xl font-bold text-yellow-600">Loading...</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <AdminOverview />
           </TabsContent>
 
           <TabsContent value="users" className="space-y-4">
@@ -194,31 +54,11 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="messages" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Contact Messages</CardTitle>
-                <CardDescription>
-                  Review and respond to customer inquiries
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">Contact messages functionality coming soon...</p>
-              </CardContent>
-            </Card>
+            <ContactMessages />
           </TabsContent>
 
           <TabsContent value="payments" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Payment Management</CardTitle>
-                <CardDescription>
-                  Review payment screenshots and approve transactions
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">Payment management functionality coming soon...</p>
-              </CardContent>
-            </Card>
+            <PaymentManagement />
           </TabsContent>
         </Tabs>
       </div>
