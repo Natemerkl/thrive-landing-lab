@@ -12,8 +12,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Copy, Upload, CheckCircle2, AlertTriangle, BanknoteIcon } from 'lucide-react';
@@ -68,8 +66,6 @@ const PaymentPage: React.FC = () => {
 
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(planFromState || null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isAnnual, setIsAnnual] = useState(location.state?.isAnnual || false);
-  const [showYearlyPayment, setShowYearlyPayment] = useState(location.state?.isAnnual || false);
   const [selectedBank, setSelectedBank] = useState<Bank | null>(banks[0]);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [paymentSuccessful, setPaymentSuccessful] = useState(false);
@@ -101,7 +97,7 @@ const PaymentPage: React.FC = () => {
 
   const getAmount = () => {
     if (!selectedPlan) return 0;
-    return showYearlyPayment ? selectedPlan.annual_price : selectedPlan.monthly_price;
+    return selectedPlan.monthly_price; // Use monthly_price as the one-time payment amount
   };
 
   const copyAccountNumber = (accountNumber: string) => {
@@ -219,9 +215,7 @@ const PaymentPage: React.FC = () => {
           status: 'pending',
           payment_method: selectedBank?.name || values.bank,
           billing_period_start: new Date().toISOString(),
-          billing_period_end: showYearlyPayment 
-            ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
-            : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+          billing_period_end: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // 1 year validity
         });
 
       if (billingError) throw billingError;
@@ -256,10 +250,10 @@ const PaymentPage: React.FC = () => {
     <div className="container mx-auto py-8 px-4 max-w-4xl">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold tracking-tight mb-2">
-          Complete Your {selectedPlan.name} Plan Purchase
+          Complete Your {selectedPlan.name} Purchase
         </h1>
         <p className="text-muted-foreground">
-          {showYearlyPayment ? "Annual" : "Monthly"} subscription - {formatCurrency(getAmount())}
+          One-time payment - {formatCurrency(getAmount())}
         </p>
       </div>
 
@@ -269,7 +263,7 @@ const PaymentPage: React.FC = () => {
             <CheckCircle2 className="mx-auto h-12 w-12 text-green-500 mb-4" />
             <CardTitle>Payment Submitted Successfully!</CardTitle>
             <CardDescription>
-              Your payment is now under review. We'll activate your subscription once verified.
+              Your payment is now under review. We'll activate your project once verified.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -285,8 +279,8 @@ const PaymentPage: React.FC = () => {
               <div className="border rounded-lg p-4">
                 <h3 className="font-medium mb-2">Payment Details</h3>
                 <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="text-muted-foreground">Plan:</div>
-                  <div>{selectedPlan.name} ({showYearlyPayment ? "Annual" : "Monthly"})</div>
+                  <div className="text-muted-foreground">Service:</div>
+                  <div>{selectedPlan.name}</div>
                   <div className="text-muted-foreground">Amount:</div>
                   <div>{formatCurrency(getAmount())}</div>
                   <div className="text-muted-foreground">Status:</div>
@@ -489,36 +483,16 @@ const PaymentPage: React.FC = () => {
               <CardHeader>
                 <CardTitle>Order Summary</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2 pb-2">
-                <div className="flex items-center justify-between">
-                  <span className={`text-sm ${!showYearlyPayment ? "font-medium" : "text-muted-foreground"}`}>Pay Monthly</span>
-                  <Switch
-                    checked={showYearlyPayment}
-                    onCheckedChange={setShowYearlyPayment}
-                    id="payment-billing-toggle"
-                  />
-                  <div className="flex items-center">
-                    <span className={`text-sm ${showYearlyPayment ? "font-medium" : "text-muted-foreground"}`}>
-                      Pay Yearly
-                    </span>
-                    {selectedPlan.annual_price > 0 && selectedPlan.monthly_price > 0 && (
-                      <Badge variant="outline" className="ml-2 bg-green-100 text-green-800 border-green-200">
-                        Save {formatCurrency(selectedPlan.monthly_price * 12 - selectedPlan.annual_price)}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
               <CardContent className="space-y-4">
                 <div>
                   <h3 className="font-medium mb-2">{selectedPlan.name}</h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    {showYearlyPayment ? "Annual" : "Monthly"} subscription
+                    One-time payment
                   </p>
                   
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span>Subtotal</span>
+                      <span>Service Fee</span>
                       <span>{formatCurrency(getAmount())}</span>
                     </div>
                     <div className="flex justify-between font-medium text-lg border-t pt-2">
