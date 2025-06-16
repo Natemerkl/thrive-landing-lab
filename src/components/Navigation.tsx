@@ -14,6 +14,13 @@ const Navigation = () => {
     navigate('/');
   };
 
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <nav className="bg-white/80 backdrop-blur-2xl border-b border-slate-200 sticky top-0 z-50 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -27,6 +34,52 @@ const Navigation = () => {
               MERKL.DEV
             </span>
           </Link>
+
+          {/* Navigation Menu */}
+          <div className="hidden md:flex items-center space-x-8">
+            <button
+              onClick={() => scrollToSection('services')}
+              className="text-slate-600 hover:text-blue-600 font-medium transition-colors"
+            >
+              Services
+            </button>
+            <button
+              onClick={() => scrollToSection('why-choose-me')}
+              className="text-slate-600 hover:text-blue-600 font-medium transition-colors"
+            >
+              Why Choose Me
+            </button>
+            <button
+              onClick={() => scrollToSection('how-it-works')}
+              className="text-slate-600 hover:text-blue-600 font-medium transition-colors"
+            >
+              How It Works
+            </button>
+            <button
+              onClick={() => scrollToSection('pricing')}
+              className="text-slate-600 hover:text-blue-600 font-medium transition-colors"
+            >
+              Pricing
+            </button>
+            <button
+              onClick={() => scrollToSection('recent-works')}
+              className="text-slate-600 hover:text-blue-600 font-medium transition-colors"
+            >
+              Portfolio
+            </button>
+            <button
+              onClick={() => scrollToSection('faq')}
+              className="text-slate-600 hover:text-blue-600 font-medium transition-colors"
+            >
+              FAQ
+            </button>
+            <button
+              onClick={() => scrollToSection('contact')}
+              className="text-slate-600 hover:text-blue-600 font-medium transition-colors"
+            >
+              Contact
+            </button>
+          </div>
 
           {/* User Menu */}
           <div className="flex items-center space-x-4">
