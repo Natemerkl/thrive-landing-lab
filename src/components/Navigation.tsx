@@ -31,7 +31,7 @@ const Navigation = () => {
               <Code className="h-7 w-7 text-white transition-transform duration-500 group-hover:animate-spin-slow" />
             </div>
             <span className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent tracking-tight">
-              MERKL.DEV
+              DevNM
             </span>
           </Link>
 
