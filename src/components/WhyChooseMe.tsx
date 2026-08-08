@@ -27,7 +27,7 @@ const WhyChooseMe = () => {
     {
       icon: Target,
       title: 'Direct Collaboration',
-      description: 'Work directly with me, not a team. Clear communication, personal attention.',
+      description: 'Work directly with our team. Clear communication and personal attention throughout your project.',
       color: 'text-blue-500'
     },
     {
@@ -57,12 +57,12 @@ const WhyChooseMe = () => {
           <h2 className={`text-4xl md:text-5xl font-bold text-slate-800 mb-6 transition-all duration-800 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}>
-            Why Choose Me
+            Why Choose Us
           </h2>
           <p className={`text-xl text-slate-600 max-w-3xl mx-auto transition-all duration-800 delay-200 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}>
-            The advantages of working with a dedicated expert who cares about your success.
+            The advantages of working with a dedicated team that cares about your success.
           </p>
         </div>
 

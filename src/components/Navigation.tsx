@@ -47,7 +47,7 @@ const Navigation = () => {
               onClick={() => scrollToSection('why-choose-me')}
               className="text-slate-600 hover:text-blue-600 font-medium transition-colors"
             >
-              Why Choose Me
+              Why Choose Us
             </button>
             <button
               onClick={() => scrollToSection('how-it-works')}

@@ -58,7 +58,7 @@ const HeroSection = () => {
               <Button
                 variant="outline"
                 onClick={() => scrollToSection('contact')}
-                className="border-2 border-blue-300 text-blue-100 hover:bg-white hover:text-slate-900 px-8 py-4 text-lg rounded-lg font-medium transition-all duration-300 transform hover:scale-105 hover:shadow-lg flex items-center gap-2"
+                className="border-2 border-white bg-white px-8 py-4 text-lg font-semibold text-slate-900 shadow-xl shadow-blue-950/50 transition-all duration-300 hover:scale-105 hover:bg-blue-50 hover:text-blue-800 hover:shadow-2xl focus-visible:ring-4 focus-visible:ring-white/70 flex items-center gap-2"
               >
                 <Phone size={20} />
                 Book Free Call
