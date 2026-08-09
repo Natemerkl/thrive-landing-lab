@@ -62,7 +62,7 @@ const HowItWorks = () => {
               <Code className="h-8 w-8 text-white transition-transform duration-500 group-hover:animate-spin-slow" />
             </div>
             <span className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent tracking-tight">
-              MERKL.DEV
+              DevNM
             </span>
           </div>
         </div>
