@@ -45,7 +45,7 @@ const TrustLogos = () => {
   const duplicatedTechnologies = [...technologies, ...technologies];
 
   return (
-    <section ref={sectionRef} className="py-16 bg-white overflow-hidden">
+    <section ref={sectionRef} className="page-section py-16 bg-[#f7faff] overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-12">
           <p className={`text-slate-500 text-lg transition-all duration-800 ${
@@ -91,6 +91,12 @@ const TrustLogos = () => {
         
         .animate-scroll:hover {
           animation-play-state: paused;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .animate-scroll {
+            animation: none;
+          }
         }
       `}</style>
     </section>
