@@ -56,7 +56,7 @@ const NewsletterSubscription = () => {
   return (
     <div className="luxury-card bg-white border rounded-lg p-6">
       <div className="flex items-center mb-4">
-        <Mail className="w-5 h-5 text-indigo-700 mr-2" />
+        <Mail className="w-5 h-5 text-emerald-700 mr-2" />
         <h3 className="text-lg font-semibold text-slate-800">Stay Updated</h3>
       </div>
       <p className="text-slate-600 mb-4">
@@ -74,7 +74,7 @@ const NewsletterSubscription = () => {
         <Button 
           type="submit" 
           disabled={isSubmitting}
-          className="bg-gradient-to-r from-slate-950 to-indigo-800 hover:from-indigo-800 hover:to-violet-700"
+          className="bg-gradient-to-r from-emerald-950 to-teal-700 hover:from-teal-700 hover:to-amber-600"
         >
           {isSubmitting ? 'Subscribing...' : 'Subscribe'}
         </Button>

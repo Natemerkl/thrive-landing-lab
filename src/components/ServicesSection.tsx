@@ -33,47 +33,47 @@ const ServicesSection = () => {
       title: 'Custom Web Design',
       description: 'Beautiful, responsive designs that convert visitors into customers. Modern UI/UX with Ethiopian market insights.',
       features: ['Mobile-first responsive design', 'Brand identity integration', 'User experience optimization'],
-      color: 'text-cyan-700'
+      color: 'text-teal-700'
     },
     {
       icon: Code,
       title: 'Full-Stack Development',
       description: 'Complete web applications with React, Next.js, and Supabase. Scalable solutions for growing businesses.',
       features: ['React & Next.js development', 'Database design & management', 'API development & integration'],
-      color: 'text-indigo-700'
+      color: 'text-emerald-700'
     },
     {
       icon: CreditCard,
       title: 'Payment Management System',
       description: 'Complete payment processing solution with Stripe integration, subscription management, and financial analytics.',
       features: ['Stripe payment gateway integration', 'Subscription & recurring billing', 'Payment analytics dashboard', 'Multi-currency support (ETB/USD)', 'Automated invoicing & receipts', 'Payment dispute management'],
-      color: 'text-violet-700'
+      color: 'text-amber-700'
     },
     {
       icon: Zap,
       title: 'Performance Optimization',
       description: 'Lightning-fast websites optimized for Ethiopian internet speeds. SEO-ready for Google ranking.',
       features: ['Core Web Vitals optimization', 'SEO implementation', 'Speed & performance tuning'],
-      color: 'text-cyan-600'
+      color: 'text-teal-600'
     },
     {
       icon: Shield,
       title: 'Authentication & Security',
       description: 'Secure user authentication, role management, and data protection for your applications.',
       features: ['User authentication system', 'Role-based access control', 'Data encryption & security'],
-      color: 'text-indigo-600'
+      color: 'text-emerald-600'
     },
     {
       icon: BarChart3,
       title: 'Analytics & Insights',
       description: 'Comprehensive analytics dashboard to track your business metrics and user behavior.',
       features: ['Google Analytics integration', 'Custom dashboard creation', 'Business intelligence reports'],
-      color: 'text-violet-600'
+      color: 'text-amber-600'
     }
   ];
 
   return (
-    <section ref={sectionRef} id="services" className="py-20 bg-[#f4f8ff]">
+    <section ref={sectionRef} id="services" className="py-20 bg-[#f1f9f5]">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className={`text-4xl md:text-5xl font-bold text-slate-800 mb-6 transition-all duration-800 ${
@@ -119,7 +119,7 @@ const ServicesSection = () => {
         <div className="text-center mt-12">
           <button 
             onClick={() => scrollToSection('contact')}
-            className="bg-gradient-to-r from-slate-950 to-indigo-800 hover:from-indigo-800 hover:to-violet-700 text-white px-8 py-4 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+            className="bg-gradient-to-r from-emerald-950 to-teal-700 hover:from-teal-700 hover:to-amber-600 text-white px-8 py-4 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
           >
             Start Your Project Today
           </button>

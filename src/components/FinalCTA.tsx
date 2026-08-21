@@ -92,7 +92,7 @@ const FinalCTA = () => {
   };
 
   return (
-    <section id="contact" ref={sectionRef} className="py-20 bg-[radial-gradient(circle_at_80%_10%,rgba(34,211,238,0.2),transparent_28%),radial-gradient(circle_at_15%_85%,rgba(139,92,246,0.25),transparent_35%),linear-gradient(135deg,#080b18,#111b3c_55%,#18255b)] text-white">
+    <section id="contact" ref={sectionRef} className="py-20 bg-[radial-gradient(circle_at_80%_10%,rgba(45,212,191,0.2),transparent_28%),radial-gradient(circle_at_15%_85%,rgba(180,128,54,0.22),transparent_35%),linear-gradient(135deg,#061b19,#0b3831_55%,#12483d)] text-white">
       <div className="max-w-6xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className={`text-4xl md:text-5xl font-bold mb-6 transition-all duration-800 ${
@@ -169,7 +169,7 @@ const FinalCTA = () => {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-gradient-to-r from-cyan-300 to-cyan-400 text-slate-950 py-3 font-semibold transition-all duration-300 transform hover:scale-105 hover:from-cyan-200 hover:to-violet-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-gradient-to-r from-emerald-300 to-teal-400 text-slate-950 py-3 font-semibold transition-all duration-300 transform hover:scale-105 hover:from-emerald-200 hover:to-amber-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Sending...' : 'Send Message'}
               </Button>
@@ -187,7 +187,7 @@ const FinalCTA = () => {
               
               <Button
                 variant="outline"
-                className="border-2 border-cyan-200/60 text-cyan-50 hover:bg-cyan-50 hover:text-slate-950 transition-all duration-300"
+                className="border-2 border-emerald-200/60 text-emerald-50 hover:bg-emerald-50 hover:text-slate-950 transition-all duration-300"
               >
                 📞 Schedule a Discovery Call
               </Button>

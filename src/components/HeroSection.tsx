@@ -17,13 +17,13 @@ const HeroSection = () => {
 
   return (
     <section id="hero" className="page-section min-h-screen flex items-center justify-center relative isolate overflow-hidden bg-slate-950 py-24">
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_80%_15%,rgba(34,211,238,0.22),transparent_30%),radial-gradient(circle_at_10%_90%,rgba(139,92,246,0.2),transparent_34%),linear-gradient(135deg,#090d1b,#111b3d_55%,#182452)]" />
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_80%_15%,rgba(45,212,191,0.24),transparent_30%),radial-gradient(circle_at_10%_90%,rgba(180,128,54,0.18),transparent_34%),linear-gradient(135deg,#061b19,#0b3831_55%,#12483d)]" />
 
       {/* Animated background pattern */}
       <div className="absolute inset-0 -z-0 opacity-20" aria-hidden="true">
-        <div className="absolute top-10 left-10 w-32 h-32 bg-cyan-300 rounded-full animate-pulse"></div>
-        <div className="absolute bottom-10 right-10 w-24 h-24 bg-violet-400 rounded-full animate-pulse delay-1000"></div>
-        <div className="absolute top-1/3 right-1/4 w-16 h-16 bg-cyan-200 rounded-full animate-pulse delay-500"></div>
+        <div className="absolute top-10 left-10 w-32 h-32 bg-teal-300 rounded-full animate-pulse"></div>
+        <div className="absolute bottom-10 right-10 w-24 h-24 bg-amber-500 rounded-full animate-pulse delay-1000"></div>
+        <div className="absolute top-1/3 right-1/4 w-16 h-16 bg-emerald-200 rounded-full animate-pulse delay-500"></div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
@@ -32,7 +32,7 @@ const HeroSection = () => {
             <h1 className={`text-5xl md:text-7xl font-bold text-white mb-6 transition-all duration-1000 ${
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
             }`}>
-              Design. Build. <span className="bg-gradient-to-r from-cyan-200 via-white to-violet-300 bg-clip-text text-transparent">Scale</span>
+              Design. Build. <span className="bg-gradient-to-r from-emerald-200 via-white to-amber-300 bg-clip-text text-transparent">Scale</span>
               <br />
               <span className="text-3xl md:text-5xl text-slate-200">Expert Web Development in Ethiopia</span>
             </h1>
@@ -49,7 +49,7 @@ const HeroSection = () => {
             }`}>
               <Button
                 onClick={() => scrollToSection('contact')}
-                className="bg-gradient-to-r from-cyan-300 to-cyan-400 text-slate-950 hover:from-cyan-200 hover:to-violet-300 px-8 py-4 text-lg rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-cyan-500/30 flex items-center gap-2"
+                className="bg-gradient-to-r from-emerald-300 to-teal-400 text-slate-950 hover:from-emerald-200 hover:to-amber-300 px-8 py-4 text-lg rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-emerald-500/30 flex items-center gap-2"
               >
                 <ArrowRight size={20} />
                 Start Your Project
@@ -58,7 +58,7 @@ const HeroSection = () => {
               <Button
                 variant="outline"
                 onClick={() => scrollToSection('contact')}
-                className="border-2 border-cyan-200/70 bg-slate-950/20 px-8 py-4 text-lg font-semibold text-cyan-50 shadow-xl shadow-black/50 transition-all duration-300 hover:scale-105 hover:bg-cyan-50 hover:text-slate-950 hover:shadow-2xl focus-visible:ring-4 focus-visible:ring-cyan-200/70 flex items-center gap-2"
+                className="border-2 border-emerald-200/70 bg-slate-950/20 px-8 py-4 text-lg font-semibold text-emerald-50 shadow-xl shadow-black/50 transition-all duration-300 hover:scale-105 hover:bg-emerald-50 hover:text-slate-950 hover:shadow-2xl focus-visible:ring-4 focus-visible:ring-emerald-200/70 flex items-center gap-2"
               >
                 <Phone size={20} />
                 Book Free Call

@@ -22,15 +22,15 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="bg-[#f8fbff]/90 backdrop-blur-2xl border-b border-cyan-100 sticky top-0 z-50 shadow-lg shadow-slate-950/5">
+    <nav className="bg-[#f7fbf9]/90 backdrop-blur-2xl border-b border-emerald-100 sticky top-0 z-50 shadow-lg shadow-emerald-950/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 group select-none">
-            <div className="bg-gradient-to-r from-slate-950 to-indigo-800 p-2.5 rounded-xl shadow transition-transform duration-700 group-hover:rotate-[16deg] group-hover:scale-110">
+            <div className="bg-gradient-to-r from-emerald-950 to-teal-700 p-2.5 rounded-xl shadow transition-transform duration-700 group-hover:rotate-[16deg] group-hover:scale-110">
               <Code className="h-7 w-7 text-white transition-transform duration-500 group-hover:animate-spin-slow" />
             </div>
-            <span className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-slate-950 to-indigo-700 bg-clip-text text-transparent tracking-tight">
+            <span className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-emerald-950 to-teal-700 bg-clip-text text-transparent tracking-tight">
               DevNM
             </span>
           </Link>
@@ -107,7 +107,7 @@ const Navigation = () => {
             ) : (
               <Button 
                 onClick={() => navigate('/auth')}
-                className="bg-gradient-to-r from-slate-950 to-indigo-800 text-white px-6 py-2 rounded-xl hover:from-indigo-800 hover:to-violet-700 transition-all duration-300 font-medium shadow-lg shadow-indigo-950/20"
+                className="bg-gradient-to-r from-emerald-950 to-teal-700 text-white px-6 py-2 rounded-xl hover:from-teal-700 hover:to-amber-600 transition-all duration-300 font-medium shadow-lg shadow-emerald-950/20"
               >
                 Sign In
               </Button>

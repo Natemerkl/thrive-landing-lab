@@ -28,30 +28,30 @@ const WhyChooseMe = () => {
       icon: Target,
       title: 'Direct Collaboration',
       description: 'Work directly with our team. Clear communication and personal attention throughout your project.',
-      color: 'text-cyan-700'
+      color: 'text-teal-700'
     },
     {
       icon: Zap,
       title: 'Fast Turnaround',
       description: 'No bureaucracy or delays. Most projects completed within 2-4 weeks.',
-      color: 'text-violet-700'
+      color: 'text-amber-700'
     },
     {
       icon: MessageCircle,
       title: 'Clear Communication',
       description: 'Regular updates, transparent process, and always available for questions.',
-      color: 'text-indigo-600'
+      color: 'text-emerald-600'
     },
     {
       icon: Brain,
       title: 'Strategy + Execution',
       description: 'Not just development - strategic thinking to grow your business.',
-      color: 'text-cyan-800'
+      color: 'text-teal-800'
     }
   ];
 
   return (
-    <section id="about" ref={sectionRef} className="py-20 bg-[#eef5ff]">
+    <section id="about" ref={sectionRef} className="py-20 bg-[#eef8f3]">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className={`text-4xl md:text-5xl font-bold text-slate-800 mb-6 transition-all duration-800 ${

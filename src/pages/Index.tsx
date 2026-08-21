@@ -39,7 +39,7 @@ const Index = () => {
       </section>
       
       {/* Newsletter section */}
-      <section className="page-section py-16 bg-[#f4f7ff] w-full">
+      <section className="page-section py-16 bg-[#f1f9f5] w-full">
         <div className="max-w-4xl mx-auto px-6 lg:px-8">
           <NewsletterSubscription />
         </div>

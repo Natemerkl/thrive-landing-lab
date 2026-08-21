@@ -48,7 +48,7 @@ const HowItWorks = () => {
   ];
 
   return (
-    <section ref={sectionRef} id="how-it-works" className="py-20 bg-[#f7f5ff]">
+    <section ref={sectionRef} id="how-it-works" className="py-20 bg-[#f8faf7]">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Logo Section */}
         <div className="text-center mb-12">
@@ -56,7 +56,7 @@ const HowItWorks = () => {
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}>
             <div
-              className="bg-gradient-to-r from-slate-950 to-indigo-800 p-3 rounded-xl shadow-lg transition-transform duration-700 group-hover:rotate-[16deg] group-hover:scale-110 animate-logo-pop"
+              className="bg-gradient-to-r from-emerald-950 to-teal-700 p-3 rounded-xl shadow-lg transition-transform duration-700 group-hover:rotate-[16deg] group-hover:scale-110 animate-logo-pop"
               style={{ willChange: 'transform' }}
             >
               <Code className="h-8 w-8 text-white transition-transform duration-500 group-hover:animate-spin-slow" />
@@ -90,7 +90,7 @@ const HowItWorks = () => {
               style={{ transitionDelay: `${(index + 1) * 300}ms` }}
             >
               <div className="relative mb-8">
-                <div className="w-20 h-20 bg-gradient-to-r from-slate-950 to-indigo-800 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4 shadow-lg">
+                <div className="w-20 h-20 bg-gradient-to-r from-emerald-950 to-teal-700 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4 shadow-lg">
                   {step.number}
                 </div>
                 <div className={`w-12 h-12 mx-auto ${step.color}`}>

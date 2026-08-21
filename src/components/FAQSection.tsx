@@ -56,7 +56,7 @@ const FAQSection = () => {
   ];
 
   return (
-    <section ref={sectionRef} className="py-20 bg-[#eef5ff]">
+    <section ref={sectionRef} className="py-20 bg-[#eef8f3]">
       <div className="max-w-4xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className={`text-4xl md:text-5xl font-bold text-slate-800 mb-6 transition-all duration-800 ${
@@ -78,7 +78,7 @@ const FAQSection = () => {
                 isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
               }`}
               style={{ transitionDelay: `${(index + 1) * 150}ms` }}>
-                <CollapsibleTrigger className="w-full p-6 text-left flex items-center justify-between hover:bg-cyan-50 transition-colors">
+                <CollapsibleTrigger className="w-full p-6 text-left flex items-center justify-between hover:bg-emerald-50 transition-colors">
                   <h3 className="text-lg font-semibold text-slate-800 pr-4">{faq.question}</h3>
                   <span className={`text-2xl transition-transform duration-300 ${
                     openItems.includes(index) ? 'rotate-45' : 'rotate-0'
