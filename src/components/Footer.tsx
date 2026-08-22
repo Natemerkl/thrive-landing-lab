@@ -4,23 +4,23 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-slate-900 text-white py-12">
+    <footer className="bg-[#061b19] text-white py-12">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
-            <div className="font-bold text-2xl mb-4 text-blue-400">DevNM</div>
+            <div className="font-bold text-2xl mb-4 text-stone-200">DevNM</div>
             <p className="text-slate-300 mb-4 max-w-md">
               Premium web development services for businesses ready to scale. 
               Design, build, and grow with one expert partner.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-slate-400 hover:text-blue-400 transition-colors text-xl">
+              <a href="#" className="text-slate-400 hover:text-stone-200 transition-colors text-xl">
                 💼 LinkedIn
               </a>
-              <a href="#" className="text-slate-400 hover:text-blue-400 transition-colors text-xl">
+              <a href="#" className="text-slate-400 hover:text-stone-200 transition-colors text-xl">
                 🐙 GitHub
               </a>
-              <a href="#" className="text-slate-400 hover:text-blue-400 transition-colors text-xl">
+              <a href="#" className="text-slate-400 hover:text-stone-200 transition-colors text-xl">
                 📸 Instagram
               </a>
             </div>

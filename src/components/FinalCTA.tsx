@@ -12,8 +12,7 @@ const FinalCTA = () => {
     email: '',
     projectBrief: '',
     phone: '',
-    projectType: '',
-    budgetRange: ''
+    projectType: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
@@ -49,8 +48,7 @@ const FinalCTA = () => {
             email: formData.email,
             message: formData.projectBrief,
             phone: formData.phone || null,
-            project_type: formData.projectType || null,
-            budget_range: formData.budgetRange || null
+            project_type: formData.projectType || null
           }
         ]);
 
@@ -71,8 +69,7 @@ const FinalCTA = () => {
           email: '', 
           projectBrief: '', 
           phone: '', 
-          projectType: '', 
-          budgetRange: '' 
+          projectType: ''
         });
       }
     } catch (error) {
@@ -95,7 +92,7 @@ const FinalCTA = () => {
   };
 
   return (
-    <section id="contact" ref={sectionRef} className="py-20 bg-gradient-to-br from-slate-800 to-slate-900 text-white">
+    <section id="contact" ref={sectionRef} className="py-20 bg-[radial-gradient(circle_at_80%_10%,rgba(45,212,191,0.2),transparent_28%),radial-gradient(circle_at_15%_85%,rgba(180,128,54,0.22),transparent_35%),linear-gradient(135deg,#061b19,#0b3831_55%,#12483d)] text-white">
       <div className="max-w-6xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className={`text-4xl md:text-5xl font-bold mb-6 transition-all duration-800 ${
@@ -123,7 +120,7 @@ const FinalCTA = () => {
                   value={formData.name}
                   onChange={handleInputChange}
                   required
-                  className="bg-white/10 border-white/20 text-white placeholder:text-slate-300 focus:border-blue-400 focus:ring-blue-400"
+                  className="bg-white/10 border-white/20 text-white placeholder:text-slate-300 focus:border-stone-300 focus:ring-stone-300"
                 />
                 <Input
                   type="email"
@@ -132,7 +129,7 @@ const FinalCTA = () => {
                   value={formData.email}
                   onChange={handleInputChange}
                   required
-                  className="bg-white/10 border-white/20 text-white placeholder:text-slate-300 focus:border-blue-400 focus:ring-blue-400"
+                  className="bg-white/10 border-white/20 text-white placeholder:text-slate-300 focus:border-stone-300 focus:ring-stone-300"
                 />
               </div>
 
@@ -143,13 +140,13 @@ const FinalCTA = () => {
                   placeholder="Phone (Optional)"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="bg-white/10 border-white/20 text-white placeholder:text-slate-300 focus:border-blue-400 focus:ring-blue-400"
+                  className="bg-white/10 border-white/20 text-white placeholder:text-slate-300 focus:border-stone-300 focus:ring-stone-300"
                 />
                 <select
                   name="projectType"
                   value={formData.projectType}
                   onChange={handleInputChange}
-                  className="bg-white/10 border border-white/20 text-white rounded-md px-3 py-2 focus:border-blue-400 focus:ring-blue-400"
+                  className="bg-white/10 border border-white/20 text-white rounded-md px-3 py-2 focus:border-stone-300 focus:ring-stone-300"
                 >
                   <option value="" className="text-slate-800">Project Type</option>
                   <option value="website" className="text-slate-800">Website</option>
@@ -159,19 +156,6 @@ const FinalCTA = () => {
                 </select>
               </div>
 
-              <select
-                name="budgetRange"
-                value={formData.budgetRange}
-                onChange={handleInputChange}
-                className="w-full bg-white/10 border border-white/20 text-white rounded-md px-3 py-2 focus:border-blue-400 focus:ring-blue-400"
-              >
-                <option value="" className="text-slate-800">Budget Range</option>
-                <option value="10000-25000" className="text-slate-800">10,000 - 25,000 ETB</option>
-                <option value="25000-50000" className="text-slate-800">25,000 - 50,000 ETB</option>
-                <option value="50000-100000" className="text-slate-800">50,000 - 100,000 ETB</option>
-                <option value="100000+" className="text-slate-800">100,000+ ETB</option>
-              </select>
-              
               <Textarea
                 name="projectBrief"
                 placeholder="Tell me about your project..."
@@ -179,13 +163,13 @@ const FinalCTA = () => {
                 onChange={handleInputChange}
                 required
                 rows={4}
-                className="bg-white/10 border-white/20 text-white placeholder:text-slate-300 focus:border-blue-400 focus:ring-blue-400"
+                className="bg-white/10 border-white/20 text-white placeholder:text-slate-300 focus:border-stone-300 focus:ring-stone-300"
               />
               
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 font-medium transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-gradient-to-r from-emerald-300 to-teal-400 text-slate-950 py-3 font-semibold transition-all duration-300 transform hover:scale-105 hover:from-emerald-200 hover:to-amber-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Sending...' : 'Send Message'}
               </Button>
@@ -203,7 +187,7 @@ const FinalCTA = () => {
               
               <Button
                 variant="outline"
-                className="border-2 border-white/20 text-white hover:bg-white hover:text-slate-800 transition-all duration-300"
+                className="border-2 border-emerald-200/60 text-emerald-50 hover:bg-emerald-50 hover:text-slate-950 transition-all duration-300"
               >
                 📞 Schedule a Discovery Call
               </Button>

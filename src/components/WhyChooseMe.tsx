@@ -28,30 +28,30 @@ const WhyChooseMe = () => {
       icon: Target,
       title: 'Direct Collaboration',
       description: 'Work directly with our team. Clear communication and personal attention throughout your project.',
-      color: 'text-blue-500'
+      color: 'text-teal-700'
     },
     {
       icon: Zap,
       title: 'Fast Turnaround',
       description: 'No bureaucracy or delays. Most projects completed within 2-4 weeks.',
-      color: 'text-yellow-500'
+      color: 'text-amber-700'
     },
     {
       icon: MessageCircle,
       title: 'Clear Communication',
       description: 'Regular updates, transparent process, and always available for questions.',
-      color: 'text-green-500'
+      color: 'text-emerald-600'
     },
     {
       icon: Brain,
       title: 'Strategy + Execution',
       description: 'Not just development - strategic thinking to grow your business.',
-      color: 'text-purple-500'
+      color: 'text-teal-800'
     }
   ];
 
   return (
-    <section id="about" ref={sectionRef} className="py-20 bg-slate-50">
+    <section id="about" ref={sectionRef} className="py-20 bg-[#eef8f3]">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className={`text-4xl md:text-5xl font-bold text-slate-800 mb-6 transition-all duration-800 ${
@@ -70,7 +70,7 @@ const WhyChooseMe = () => {
           {benefits.map((benefit, index) => (
             <div
               key={benefit.title}
-              className={`text-center bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 border border-slate-100 ${
+              className={`luxury-card text-center bg-white/90 p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 border ${
                 isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
               }`}
               style={{ transitionDelay: `${(index + 1) * 200}ms` }}

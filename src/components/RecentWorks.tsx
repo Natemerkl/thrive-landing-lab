@@ -66,7 +66,7 @@ const RecentWorks = () => {
   };
 
   return (
-    <section ref={sectionRef} className="py-20 bg-white">
+    <section ref={sectionRef} className="py-20 bg-[#f4f9f6]">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className={`text-4xl md:text-5xl font-bold text-slate-800 mb-6 transition-all duration-800 ${
@@ -93,7 +93,7 @@ const RecentWorks = () => {
               style={{ transitionDelay: `${index * 150}ms` }}
               onClick={() => handleWorkClick(work)}
             >
-              <div className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-slate-100">
+              <div className="luxury-card bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border">
                 <div className="relative overflow-hidden">
                   <img
                     src={work.image}
@@ -109,7 +109,7 @@ const RecentWorks = () => {
                 </div>
                 
                 <div className="p-6">
-                  <h3 className="text-xl font-bold text-slate-800 mb-3 group-hover:text-blue-600 transition-colors duration-300">
+                  <h3 className="text-xl font-bold text-slate-800 mb-3 group-hover:text-emerald-700 transition-colors duration-300">
                     {work.title}
                   </h3>
                   <p className="text-slate-600 mb-4 line-clamp-2">
@@ -120,7 +120,7 @@ const RecentWorks = () => {
                     {work.tags.map((tag, tagIndex) => (
                       <span
                         key={tagIndex}
-                        className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-sm font-medium group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors duration-300"
+                        className="px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-sm font-medium group-hover:bg-teal-100 group-hover:text-teal-900 transition-colors duration-300"
                       >
                         {tag}
                       </span>

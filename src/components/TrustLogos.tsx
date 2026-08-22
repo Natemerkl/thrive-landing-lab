@@ -35,17 +35,17 @@ const TrustLogos = () => {
     { name: 'SQL', icon: Database, color: 'text-blue-700' },
     { name: 'Stripe', icon: CreditCard, color: 'text-purple-500' },
     { name: 'Vercel', icon: Rocket, color: 'text-slate-800' },
-    { name: 'Tailwind', icon: Palette, color: 'text-cyan-500' },
+    { name: 'Tailwind', icon: Palette, color: 'text-teal-500' },
     { name: 'Node.js', icon: Globe, color: 'text-emerald-500' },
     { name: 'Express', icon: Layers, color: 'text-gray-600' },
-    { name: 'API', icon: Settings, color: 'text-indigo-500' }
+    { name: 'API', icon: Settings, color: 'text-emerald-600' }
   ];
 
   // Duplicate the array for seamless infinite scroll
   const duplicatedTechnologies = [...technologies, ...technologies];
 
   return (
-    <section ref={sectionRef} className="py-16 bg-white overflow-hidden">
+    <section ref={sectionRef} className="page-section py-16 bg-[#f7fbf9] overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-12">
           <p className={`text-slate-500 text-lg transition-all duration-800 ${
@@ -91,6 +91,12 @@ const TrustLogos = () => {
         
         .animate-scroll:hover {
           animation-play-state: paused;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .animate-scroll {
+            animation: none;
+          }
         }
       `}</style>
     </section>

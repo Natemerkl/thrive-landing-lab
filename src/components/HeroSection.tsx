@@ -16,14 +16,14 @@ const HeroSection = () => {
   };
 
   return (
-    <section id="hero" className="min-h-screen flex items-center justify-center relative isolate overflow-hidden bg-slate-950 py-24">
-      <div className="absolute inset-0 -z-10 bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950" />
+    <section id="hero" className="page-section min-h-screen flex items-center justify-center relative isolate overflow-hidden bg-slate-950 py-24">
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_80%_15%,rgba(45,212,191,0.24),transparent_30%),radial-gradient(circle_at_10%_90%,rgba(180,128,54,0.18),transparent_34%),linear-gradient(135deg,#061b19,#0b3831_55%,#12483d)]" />
 
       {/* Animated background pattern */}
       <div className="absolute inset-0 -z-0 opacity-20" aria-hidden="true">
-        <div className="absolute top-10 left-10 w-32 h-32 bg-blue-500 rounded-full animate-pulse"></div>
-        <div className="absolute bottom-10 right-10 w-24 h-24 bg-slate-500 rounded-full animate-pulse delay-1000"></div>
-        <div className="absolute top-1/3 right-1/4 w-16 h-16 bg-blue-400 rounded-full animate-pulse delay-500"></div>
+        <div className="absolute top-10 left-10 w-32 h-32 bg-teal-300 rounded-full animate-pulse"></div>
+        <div className="absolute bottom-10 right-10 w-24 h-24 bg-amber-500 rounded-full animate-pulse delay-1000"></div>
+        <div className="absolute top-1/3 right-1/4 w-16 h-16 bg-emerald-200 rounded-full animate-pulse delay-500"></div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
@@ -32,7 +32,7 @@ const HeroSection = () => {
             <h1 className={`text-5xl md:text-7xl font-bold text-white mb-6 transition-all duration-1000 ${
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
             }`}>
-              Design. Build. <span className="bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">Scale</span>
+              Design. Build. <span className="bg-gradient-to-r from-emerald-200 via-white to-amber-300 bg-clip-text text-transparent">Scale</span>
               <br />
               <span className="text-3xl md:text-5xl text-slate-200">Expert Web Development in Ethiopia</span>
             </h1>
@@ -48,8 +48,8 @@ const HeroSection = () => {
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
             }`}>
               <Button
-                onClick={() => scrollToSection('services')}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 text-lg rounded-lg font-medium transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center gap-2"
+                onClick={() => scrollToSection('contact')}
+                className="bg-gradient-to-r from-emerald-300 to-teal-400 text-slate-950 hover:from-emerald-200 hover:to-amber-300 px-8 py-4 text-lg rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-emerald-500/30 flex items-center gap-2"
               >
                 <ArrowRight size={20} />
                 Start Your Project
@@ -58,7 +58,7 @@ const HeroSection = () => {
               <Button
                 variant="outline"
                 onClick={() => scrollToSection('contact')}
-                className="border-2 border-white bg-white px-8 py-4 text-lg font-semibold text-slate-900 shadow-xl shadow-blue-950/50 transition-all duration-300 hover:scale-105 hover:bg-blue-50 hover:text-blue-800 hover:shadow-2xl focus-visible:ring-4 focus-visible:ring-white/70 flex items-center gap-2"
+                className="border-2 border-emerald-200/70 bg-slate-950/20 px-8 py-4 text-lg font-semibold text-emerald-50 shadow-xl shadow-black/50 transition-all duration-300 hover:scale-105 hover:bg-emerald-50 hover:text-slate-950 hover:shadow-2xl focus-visible:ring-4 focus-visible:ring-emerald-200/70 flex items-center gap-2"
               >
                 <Phone size={20} />
                 Book Free Call
@@ -66,10 +66,10 @@ const HeroSection = () => {
             </div>
           </div>
 
-          <div className={`relative mx-auto h-[310px] w-full max-w-[580px] sm:h-[390px] transition-all duration-1000 delay-300 ${
+          <div className={`hero-device-showcase relative mx-auto h-[310px] w-full max-w-[580px] sm:h-[390px] transition-all duration-1000 delay-300 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`} aria-label="DevNM websites displayed across desktop, tablet, and phone">
-            <div className="absolute inset-x-4 top-0 overflow-hidden rounded-xl border border-white/20 bg-slate-950 p-1 shadow-2xl shadow-blue-950/60 sm:inset-x-8">
+            <div className="absolute inset-x-4 top-0 overflow-hidden rounded-xl border border-white/20 bg-slate-950 p-1 shadow-2xl shadow-black/60 sm:inset-x-8">
               <div className="flex items-center gap-1.5 border-b border-white/10 px-3 py-2">
                 <span className="h-2 w-2 rounded-full bg-red-400" />
                 <span className="h-2 w-2 rounded-full bg-amber-300" />

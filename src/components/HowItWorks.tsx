@@ -29,26 +29,26 @@ const HowItWorks = () => {
       title: 'Choose Your Features',
       description: 'Pick from our feature library or select a pre-built package. Customize exactly what you need for your project.',
       icon: Target,
-      color: 'text-blue-500'
+      color: 'text-stone-800'
     },
     {
       number: 2,
       title: 'Secure Payment & Build',
       description: 'Complete secure payment and I immediately start building your custom solution with regular progress updates.',
       icon: Wrench,
-      color: 'text-purple-500'
+      color: 'text-stone-900'
     },
     {
       number: 3,
       title: 'Launch & Support',
       description: 'Receive your completed project with documentation, SEO optimization, and dedicated support period.',
       icon: Rocket,
-      color: 'text-green-500'
+      color: 'text-stone-600'
     }
   ];
 
   return (
-    <section ref={sectionRef} id="how-it-works" className="py-20 bg-white">
+    <section ref={sectionRef} id="how-it-works" className="py-20 bg-[#f8faf7]">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Logo Section */}
         <div className="text-center mb-12">
@@ -56,12 +56,12 @@ const HowItWorks = () => {
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}>
             <div
-              className="bg-gradient-to-r from-blue-600 to-blue-700 p-3 rounded-xl shadow-lg transition-transform duration-700 group-hover:rotate-[16deg] group-hover:scale-110 animate-logo-pop"
+              className="bg-gradient-to-r from-emerald-950 to-teal-700 p-3 rounded-xl shadow-lg transition-transform duration-700 group-hover:rotate-[16deg] group-hover:scale-110 animate-logo-pop"
               style={{ willChange: 'transform' }}
             >
               <Code className="h-8 w-8 text-white transition-transform duration-500 group-hover:animate-spin-slow" />
             </div>
-            <span className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent tracking-tight">
+            <span className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-stone-950 to-stone-600 bg-clip-text text-transparent tracking-tight">
               DevNM
             </span>
           </div>
@@ -90,7 +90,7 @@ const HowItWorks = () => {
               style={{ transitionDelay: `${(index + 1) * 300}ms` }}
             >
               <div className="relative mb-8">
-                <div className="w-20 h-20 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4 shadow-lg">
+                <div className="w-20 h-20 bg-gradient-to-r from-emerald-950 to-teal-700 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4 shadow-lg">
                   {step.number}
                 </div>
                 <div className={`w-12 h-12 mx-auto ${step.color}`}>
@@ -102,7 +102,7 @@ const HowItWorks = () => {
               <p className="text-slate-600 leading-relaxed">{step.description}</p>
               
               {index < steps.length - 1 && (
-                <div className="hidden md:block absolute top-10 left-full w-full h-0.5 bg-gradient-to-r from-blue-200 to-blue-300 transform -translate-x-1/2"></div>
+                <div className="hidden md:block absolute top-10 left-full w-full h-0.5 bg-gradient-to-r from-stone-200 to-stone-400 transform -translate-x-1/2"></div>
               )}
             </div>
           ))}
