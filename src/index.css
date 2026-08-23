@@ -99,19 +99,25 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-    background-color: #f7fbf9;
+    font-family: "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+    background-color: hsl(var(--background));
+    text-rendering: optimizeLegibility;
   }
 
   h1, h2, h3 {
-    font-family: Georgia, 'Times New Roman', serif;
-    letter-spacing: -0.025em;
+    font-family: "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+    font-weight: 650;
+    letter-spacing: -0.04em;
+    text-wrap: balance;
   }
+
+  html { scroll-behavior: smooth; }
 }
 
 @layer components {
   .landing-shell {
-    background: radial-gradient(circle at 15% 20%, rgba(45, 212, 191, 0.08), transparent 24rem), #f7fbf9;
+    overflow-x: clip;
+    background: hsl(var(--background));
   }
 
   .page-section {
@@ -119,14 +125,36 @@
     overflow: clip;
   }
 
+  .mono-label {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+  }
+
+  .site-grid {
+    background-image: linear-gradient(to right, rgba(6, 78, 59, 0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(6, 78, 59, 0.06) 1px, transparent 1px);
+    background-size: 2.5rem 2.5rem;
+  }
+
   .luxury-card {
-    border-color: rgba(148, 163, 184, 0.24);
-    box-shadow: 0 18px 40px -28px rgba(15, 23, 42, 0.5);
+    border-color: rgba(6, 78, 59, 0.16);
+    box-shadow: none;
   }
 
   .luxury-card:hover {
     border-color: rgba(20, 184, 166, 0.5);
-    box-shadow: 0 26px 50px -28px rgba(6, 78, 59, 0.36);
+    box-shadow: 0 18px 35px -30px rgba(6, 78, 59, 0.55);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
